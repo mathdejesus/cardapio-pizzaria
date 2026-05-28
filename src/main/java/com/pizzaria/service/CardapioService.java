@@ -1,0 +1,42 @@
+package com.pizzaria.service;
+
+import com.pizzaria.dto.CardapioResponseDTO;
+import com.pizzaria.dto.PizzaResponseDTO;
+import com.pizzaria.enums.Categoria;
+import com.pizzaria.model.Pizza;
+import com.pizzaria.repository.PizzaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CardapioService {
+
+    private final PizzaRepository pizzaRepository;
+    private final PizzaService pizzaService;
+
+    @Transactional(readOnly = true)
+    public CardapioResponseDTO getCardapio() {
+        List<Pizza> pizzas = pizzaRepository.findByDisponivelTrueAndDeletedFalse();
+        List<PizzaResponseDTO> dtos = pizzas.stream()
+                .map(pizzaService::toResponse)
+                .toList();
+
+        Map<Categoria, List<PizzaResponseDTO>> porCategoria = dtos.stream()
+                .collect(Collectors.groupingBy(
+                        PizzaResponseDTO::getCategoria,
+                        () -> new EnumMap<>(Categoria.class),
+                        Collectors.toList()));
+
+        return CardapioResponseDTO.builder()
+                .pizzasPorCategoria(porCategoria)
+                .totalSaboresDisponiveis(dtos.size())
+                .build();
+    }
+}
