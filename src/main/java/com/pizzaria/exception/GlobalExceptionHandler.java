@@ -55,6 +55,16 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.FORBIDDEN, "Acesso negado", null);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+        return buildError(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor", null);
+    }
+
     private String formatFieldError(FieldError error) {
         return error.getField() + ": " + error.getDefaultMessage();
     }

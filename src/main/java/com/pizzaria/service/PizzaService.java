@@ -4,10 +4,13 @@ import com.pizzaria.dto.*;
 import com.pizzaria.enums.Categoria;
 import com.pizzaria.exception.CategoriaInvalidaException;
 import com.pizzaria.exception.PizzaNotFoundException;
+import com.pizzaria.mapper.PizzaMapper;
 import com.pizzaria.model.Pizza;
-import com.pizzaria.model.Tamanho;
 import com.pizzaria.repository.PizzaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,70 +22,68 @@ import java.util.List;
 public class PizzaService {
 
     private final PizzaRepository pizzaRepository;
+    private final PizzaMapper pizzaMapper;
 
     @Transactional(readOnly = true)
-    public List<PizzaResponseDTO> findAll() {
-        return pizzaRepository.findByDeletedFalse().stream()
-                .map(this::toResponse)
-                .toList();
+    public Page<PizzaResponseDTO> findAll(Pageable pageable) {
+        return pizzaRepository.findAll(pageable).map(pizzaMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public PizzaResponseDTO findById(Long id) {
-        return toResponse(findActivePizza(id));
+        return pizzaMapper.toResponse(findActivePizza(id));
     }
 
     @Transactional(readOnly = true)
     public List<PizzaResponseDTO> findByCategoria(String categoria) {
         Categoria cat = parseCategoria(categoria);
-        return pizzaRepository.findByCategoriaAndDeletedFalse(cat).stream()
-                .map(this::toResponse)
+        return pizzaRepository.findByCategoria(cat).stream()
+                .map(pizzaMapper::toResponse)
                 .toList();
     }
 
     @Transactional
+    @CacheEvict(value = "cardapio", allEntries = true)
     public PizzaResponseDTO create(PizzaRequestDTO request) {
-        Pizza pizza = Pizza.builder()
-                .nome(request.getNome())
-                .descricao(request.getDescricao())
-                .categoria(request.getCategoria())
-                .tamanhos(mapTamanhos(request.getTamanhos()))
-                .ingredientes(new ArrayList<>(request.getIngredientes()))
-                .disponivel(true)
-                .deleted(false)
-                .build();
-
-        return toResponse(pizzaRepository.save(pizza));
-    }
-
-    @Transactional
-    public PizzaResponseDTO update(Long id, PizzaRequestDTO request) {
-        Pizza pizza = findActivePizza(id);
-        pizza.setNome(request.getNome());
-        pizza.setDescricao(request.getDescricao());
-        pizza.setCategoria(request.getCategoria());
-        pizza.setTamanhos(mapTamanhos(request.getTamanhos()));
+        Pizza pizza = pizzaMapper.toEntity(request);
+        pizza.setDisponivel(true);
+        pizza.setDeleted(false);
         pizza.setIngredientes(new ArrayList<>(request.getIngredientes()));
 
-        return toResponse(pizzaRepository.save(pizza));
+        return pizzaMapper.toResponse(pizzaRepository.save(pizza));
     }
 
     @Transactional
+    @CacheEvict(value = "cardapio", allEntries = true)
+    public PizzaResponseDTO update(Long id, PizzaRequestDTO request) {
+        Pizza pizza = findActivePizza(id);
+        Pizza mapped = pizzaMapper.toEntity(request);
+        pizza.setNome(mapped.getNome());
+        pizza.setDescricao(mapped.getDescricao());
+        pizza.setCategoria(mapped.getCategoria());
+        pizza.setTamanhos(mapped.getTamanhos());
+        pizza.setIngredientes(new ArrayList<>(request.getIngredientes()));
+
+        return pizzaMapper.toResponse(pizza);
+    }
+
+    @Transactional
+    @CacheEvict(value = "cardapio", allEntries = true)
     public void softDelete(Long id) {
         Pizza pizza = findActivePizza(id);
         pizza.setDeleted(true);
-        pizzaRepository.save(pizza);
     }
 
     @Transactional
+    @CacheEvict(value = "cardapio", allEntries = true)
     public PizzaResponseDTO updateDisponibilidade(Long id, DisponibilidadeRequestDTO request) {
         Pizza pizza = findActivePizza(id);
         pizza.setDisponivel(request.getDisponivel());
-        return toResponse(pizzaRepository.save(pizza));
+        return pizzaMapper.toResponse(pizza);
     }
 
     private Pizza findActivePizza(Long id) {
-        return pizzaRepository.findByIdAndDeletedFalse(id)
+        return pizzaRepository.findById(id)
                 .orElseThrow(() -> new PizzaNotFoundException(id));
     }
 
@@ -92,33 +93,5 @@ public class PizzaService {
         } catch (IllegalArgumentException ex) {
             throw new CategoriaInvalidaException(categoria);
         }
-    }
-
-    private List<Tamanho> mapTamanhos(List<TamanhoRequestDTO> tamanhos) {
-        return tamanhos.stream()
-                .map(t -> Tamanho.builder()
-                        .tipo(t.getTipo())
-                        .preco(t.getPreco())
-                        .fatias(t.getFatias())
-                        .build())
-                .toList();
-    }
-
-    public PizzaResponseDTO toResponse(Pizza pizza) {
-        return PizzaResponseDTO.builder()
-                .id(pizza.getId())
-                .nome(pizza.getNome())
-                .descricao(pizza.getDescricao())
-                .categoria(pizza.getCategoria())
-                .tamanhos(pizza.getTamanhos().stream()
-                        .map(t -> TamanhoResponseDTO.builder()
-                                .tipo(t.getTipo())
-                                .preco(t.getPreco())
-                                .fatias(t.getFatias())
-                                .build())
-                        .toList())
-                .ingredientes(pizza.getIngredientes())
-                .disponivel(pizza.isDisponivel())
-                .build();
     }
 }

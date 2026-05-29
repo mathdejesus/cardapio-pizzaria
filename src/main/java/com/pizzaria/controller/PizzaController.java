@@ -7,6 +7,8 @@ import com.pizzaria.service.PizzaService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +18,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/pizzas")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class PizzaController {
 
     private final PizzaService pizzaService;
 
     @GetMapping
-    public ResponseEntity<List<PizzaResponseDTO>> findAll() {
-        return ResponseEntity.ok(pizzaService.findAll());
+    public ResponseEntity<Page<PizzaResponseDTO>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(pizzaService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
@@ -36,13 +39,11 @@ public class PizzaController {
     }
 
     @PostMapping
-    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PizzaResponseDTO> create(@Valid @RequestBody PizzaRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pizzaService.create(request));
     }
 
     @PutMapping("/{id}")
-    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PizzaResponseDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody PizzaRequestDTO request) {
@@ -50,14 +51,12 @@ public class PizzaController {
     }
 
     @DeleteMapping("/{id}")
-    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         pizzaService.softDelete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/disponibilidade")
-    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PizzaResponseDTO> updateDisponibilidade(
             @PathVariable Long id,
             @Valid @RequestBody DisponibilidadeRequestDTO request) {

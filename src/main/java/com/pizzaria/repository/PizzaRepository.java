@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface PizzaRepository extends JpaRepository<Pizza, Long> {
 
-    List<Pizza> findByDeletedFalse();
+    List<Pizza> findAll();
 
-    List<Pizza> findByCategoriaAndDeletedFalse(Categoria categoria);
+    List<Pizza> findByCategoria(Categoria categoria);
 
-    List<Pizza> findByDisponivelTrueAndDeletedFalse();
+    List<Pizza> findByDisponivelTrue();
 
-    Optional<Pizza> findByIdAndDeletedFalse(Long id);
+    Optional<Pizza> findById(Long id);
 }

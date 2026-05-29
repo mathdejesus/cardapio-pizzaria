@@ -2,6 +2,7 @@ com/pizzaria/model/Usuario$UsuarioBuilder.class
 com/pizzaria/repository/UsuarioRepository.class
 com/pizzaria/exception/ErrorResponse.class
 com/pizzaria/controller/AuthController.class
+com/pizzaria/config/RateLimitHeadersFilter.class
 com/pizzaria/dto/LoginRequestDTO.class
 com/pizzaria/dto/TamanhoResponseDTO.class
 com/pizzaria/enums/Categoria.class
@@ -10,6 +11,7 @@ com/pizzaria/dto/PizzaResponseDTO.class
 com/pizzaria/config/OpenApiConfig.class
 com/pizzaria/security/JwtService.class
 com/pizzaria/config/CorsConfig.class
+com/pizzaria/mapper/PizzaMapper.class
 com/pizzaria/controller/PizzaController.class
 com/pizzaria/enums/TamanhoTipo.class
 com/pizzaria/model/Pizza.class
@@ -27,15 +29,18 @@ com/pizzaria/security/JwtAuthenticationFilter.class
 com/pizzaria/model/Tamanho.class
 com/pizzaria/model/Usuario.class
 com/pizzaria/dto/TamanhoRequestDTO.class
+com/pizzaria/dto/RefreshTokenRequestDTO.class
 com/pizzaria/config/DataInitializer$PizzaSeed.class
 com/pizzaria/controller/CardapioController.class
 com/pizzaria/security/UserDetailsServiceImpl.class
 com/pizzaria/dto/PizzaRequestDTO$PizzaRequestDTOBuilder.class
 com/pizzaria/PizzariaApplication.class
+com/pizzaria/mapper/PizzaMapperImpl.class
 com/pizzaria/exception/PizzaNotFoundException.class
 com/pizzaria/model/Pizza$PizzaBuilder.class
 com/pizzaria/dto/PizzaRequestDTO.class
 com/pizzaria/dto/TamanhoResponseDTO$TamanhoResponseDTOBuilder.class
+com/pizzaria/config/RedisRateLimiter.class
 com/pizzaria/exception/ErrorResponse$ErrorResponseBuilder.class
 com/pizzaria/dto/TamanhoRequestDTO$TamanhoRequestDTOBuilder.class
 com/pizzaria/dto/CardapioResponseDTO$CardapioResponseDTOBuilder.class
@@ -45,4 +50,5 @@ com/pizzaria/security/JwtAuthenticationEntryPoint.class
 com/pizzaria/enums/Role.class
 com/pizzaria/dto/AuthResponseDTO.class
 com/pizzaria/dto/AuthResponseDTO$AuthResponseDTOBuilder.class
+com/pizzaria/config/CacheConfig.class
 com/pizzaria/model/Tamanho$TamanhoBuilder.class

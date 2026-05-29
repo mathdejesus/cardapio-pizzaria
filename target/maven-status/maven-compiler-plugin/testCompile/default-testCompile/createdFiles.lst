@@ -1,0 +1,7 @@
+com/pizzaria/service/CardapioServiceTest.class
+com/pizzaria/controller/AuthControllerTest.class
+com/pizzaria/service/AuthServiceTest.class
+com/pizzaria/controller/CardapioControllerTest.class
+com/pizzaria/service/PizzaServiceTest.class
+com/pizzaria/config/TestConfig.class
+com/pizzaria/controller/PizzaControllerTest.class

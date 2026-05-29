@@ -6,12 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "pizzas")
+@SQLRestriction("deleted = false")
 @Data
 @Builder
 @NoArgsConstructor
@@ -34,12 +38,14 @@ public class Pizza {
 
     @ElementCollection
     @CollectionTable(name = "pizza_tamanhos", joinColumns = @JoinColumn(name = "pizza_id"))
+    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<Tamanho> tamanhos = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "pizza_ingredientes", joinColumns = @JoinColumn(name = "pizza_id"))
     @Column(name = "ingrediente", nullable = false)
+    @Fetch(FetchMode.SUBSELECT)
     @Builder.Default
     private List<String> ingredientes = new ArrayList<>();
 

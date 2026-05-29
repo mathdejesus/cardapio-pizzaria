@@ -1,7 +1,10 @@
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/PizzariaApplication.java
+/home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/CacheConfig.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/CorsConfig.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/DataInitializer.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/OpenApiConfig.java
+/home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/RateLimitHeadersFilter.java
+/home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/RedisRateLimiter.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/config/SecurityConfig.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/controller/AuthController.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/controller/CardapioController.java
@@ -12,6 +15,7 @@
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/dto/LoginRequestDTO.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/dto/PizzaRequestDTO.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/dto/PizzaResponseDTO.java
+/home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/dto/RefreshTokenRequestDTO.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/dto/TamanhoRequestDTO.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/dto/TamanhoResponseDTO.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/enums/Categoria.java
@@ -21,6 +25,7 @@
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/exception/ErrorResponse.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/exception/GlobalExceptionHandler.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/exception/PizzaNotFoundException.java
+/home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/mapper/PizzaMapper.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/model/Pizza.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/model/Tamanho.java
 /home/matheus/IdeaProjects/Cardapio/src/main/java/com/pizzaria/model/Usuario.java

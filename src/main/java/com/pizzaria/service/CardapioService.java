@@ -3,6 +3,7 @@ package com.pizzaria.service;
 import com.pizzaria.dto.CardapioResponseDTO;
 import com.pizzaria.dto.PizzaResponseDTO;
 import com.pizzaria.enums.Categoria;
+import com.pizzaria.mapper.PizzaMapper;
 import com.pizzaria.model.Pizza;
 import com.pizzaria.repository.PizzaRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,14 @@ import java.util.stream.Collectors;
 public class CardapioService {
 
     private final PizzaRepository pizzaRepository;
-    private final PizzaService pizzaService;
+    private final PizzaMapper pizzaMapper;
 
     @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "cardapio")
     public CardapioResponseDTO getCardapio() {
-        List<Pizza> pizzas = pizzaRepository.findByDisponivelTrueAndDeletedFalse();
+        List<Pizza> pizzas = pizzaRepository.findByDisponivelTrue();
         List<PizzaResponseDTO> dtos = pizzas.stream()
-                .map(pizzaService::toResponse)
+                .map(pizzaMapper::toResponse)
                 .toList();
 
         Map<Categoria, List<PizzaResponseDTO>> porCategoria = dtos.stream()
