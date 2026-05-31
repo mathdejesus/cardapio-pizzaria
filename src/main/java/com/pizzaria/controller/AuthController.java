@@ -3,10 +3,16 @@ package com.pizzaria.controller;
 import com.pizzaria.dto.AuthResponseDTO;
 import com.pizzaria.dto.LoginRequestDTO;
 import com.pizzaria.dto.RefreshTokenRequestDTO;
+import com.pizzaria.dto.UserProfileDTO;
 import com.pizzaria.service.AuthService;
+import com.pizzaria.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
@@ -31,9 +38,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         authService.logout(token);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<UserProfileDTO> me(@AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(userService.getProfile(user.getUsername()));
     }
 }

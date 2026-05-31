@@ -27,19 +27,24 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        seedAdmin();
+        seedUsers();
         seedPizzas();
     }
 
-    private void seedAdmin() {
+    private void seedUsers() {
         if (usuarioRepository.count() > 0) {
             return;
         }
-        // Dev: admin@pizzaria.com / admin123
+        // Dev: admin@pizzaria.com / admin123 | user@pizzaria.com / user123
         usuarioRepository.save(Usuario.builder()
                 .email("admin@pizzaria.com")
                 .senha(passwordEncoder.encode("admin123"))
                 .role(Role.ADMIN)
+                .build());
+        usuarioRepository.save(Usuario.builder()
+                .email("user@pizzaria.com")
+                .senha(passwordEncoder.encode("user123"))
+                .role(Role.USER)
                 .build());
     }
 

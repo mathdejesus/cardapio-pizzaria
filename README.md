@@ -138,7 +138,7 @@ Requisições autenticadas:
 | id | Long (PK) | Auto-increment |
 | email | String | NOT NULL, unique |
 | senha | String | BCrypt |
-| role | Role (enum) | ADMIN |
+| role | Role (enum) | ADMIN, USER |
 
 ## Endpoints
 
@@ -153,11 +153,17 @@ Requisições autenticadas:
 | GET | `/api/pizzas/{id}` | Pizza por ID |
 | GET | `/api/pizzas/categoria/{categoria}` | Filtro por categoria (SALGADA / DOCE) |
 
+### Autenticados (ADMIN ou USER)
+
+| Método | Path | Descrição |
+|---|---|---|
+| GET | `/api/auth/me` | Perfil do usuário autenticado |
+| POST | `/api/auth/logout` | Invalidar token (blocklist) |
+
 ### Autenticados (role ADMIN)
 
 | Método | Path | Descrição |
 |---|---|---|
-| POST | `/api/auth/logout` | Invalidar token (blocklist) |
 | POST | `/api/pizzas` | Criar pizza |
 | PUT | `/api/pizzas/{id}` | Atualizar pizza |
 | DELETE | `/api/pizzas/{id}` | Soft delete |
@@ -170,29 +176,36 @@ Requisições autenticadas:
 | GET | `/swagger-ui.html` | Swagger UI |
 | GET | `/api-docs` | OpenAPI JSON |
 | GET | `/h2-console` | Console H2 (dev apenas) |
+| GET | `/actuator/health` | Health check |
+| GET | `/actuator/metrics` | Métricas Micrometer |
+| GET | `/actuator/prometheus` | Métricas formato Prometheus |
 
-### Paginação
+### Paginação e HATEOAS
 
 `GET /api/pizzas?page=0&size=10&sort=nome,asc`
 
 Parâmetros `Pageable` do Spring Data aceitos: `page`, `size`, `sort`.
 
+A resposta paginada inclui links HAL (`self`, `next`, `prev`) e cada pizza possui link `self`.
+
 ### Cache
 
 - `@Cacheable("cardapio")` em `CardapioService.getCardapio()`
 - `@CacheEvict(value = "cardapio", allEntries = true)` em todos os métodos de escrita de `PizzaService`
-- Cache distribuído via **Redis** com TTL configurável de **10 minutos**
-- `CacheConfig.java` customiza TTL por cache via `RedisCacheManagerBuilderCustomizer`
+- **Dev (default):** cache local **Caffeine** (TTL 10 min) — Redis não é obrigatório
+- **Produção (`postgres`):** cache **Redis** com TTL de 10 minutos
+- `CacheConfig.java` customiza TTL no profile postgres via `RedisCacheManagerBuilderCustomizer`
 
 ### Rate Limiter
 
-- Sliding window no Redis (`INCR` + `EXPIRE` por minuto)
 - Limite: **5 tentativas** de login por IP a cada **5 minutos**
+- **Dev:** contador em memória (`InMemoryLoginRateLimiter`)
+- **Produção:** Redis (`RedisLoginRateLimiter`) com `INCR` + `EXPIRE` de 5 minutos
 - Headers de resposta: `X-RateLimit-Remaining`
 
 ### Refresh Token & Logout
 
-- Refresh token com **7 dias** de validade, armazenado no Redis
+- Refresh token com **7 dias** de validade (Redis em produção, memória em dev)
 - Rota `POST /api/auth/refresh` com rotação (invalida o token anterior)
 - Logout via `POST /api/auth/logout` adiciona o JTI à blocklist no Redis
 - `JwtAuthenticationFilter` verifica blocklist em toda requisição autenticada
@@ -248,10 +261,20 @@ Resposta padrão:
 
 ### Profiles
 
-- **default**: H2 em memória, `ddl-auto=create-drop`
-- **postgres**: PostgreSQL, `ddl-auto=update`
+- **default**: H2 em memória, cache Caffeine, sem Redis, `ddl-auto=create-drop`, Flyway desabilitado
+- **postgres**: PostgreSQL + Redis + Flyway (`ddl-auto=validate`)
 
 Ativar com: `--spring.profiles.active=postgres`
+
+### Métricas customizadas
+
+| Métrica | Descrição |
+|---|---|
+| `cardapio.login.attempts` | Total de tentativas de login |
+| `cardapio.login.failures` | Logins com credenciais inválidas |
+| `cardapio.pizzas.total` | Quantidade de pizzas no banco |
+
+Métricas de cache (`cache.*`) expostas automaticamente via Actuator quando o cache está ativo.
 
 ### CORS (origens permitidas)
 
@@ -263,25 +286,188 @@ Ativar com: `--spring.profiles.active=postgres`
 ### Seed Data (DataInitializer)
 
 - **Admin**: `admin@pizzaria.com` / `admin123`
+- **User**: `user@pizzaria.com` / `user123` (role USER — leitura de perfil e logout)
 - **20 pizzas**: 14 salgadas + 6 doces, cada uma com 4 tamanhos
 
 ## Como executar
 
+### Pré-requisitos
+
+- **Java 17+** (JDK)
+- **Maven** (ou use o wrapper `./mvnw` incluso)
+- **Docker + Docker Compose** (apenas para o profile `postgres`)
+
+---
+
+### 1. Desenvolvimento local (H2 + Caffeine — sem Redis)
+
+Modo mais simples, sem dependências externas. Usa banco H2 em memória e cache Caffeine.
+
 ```bash
-# Desenvolvimento (H2 + Redis)
-# Pré-requisito: Redis rodando em localhost:6379
-docker run -d -p 6379:6379 redis:7-alpine
-
+# 1. Defina a chave JWT (obrigatório, mínimo 32 caracteres)
 export JWT_SECRET="minha-chave-super-segura-com-pelo-menos-32-caracteres!"
+
+# 2. Execute a aplicação
 ./mvnw spring-boot:run
-
-# Produção (Docker Compose — PostgreSQL + Redis)
-export JWT_SECRET="..."
-docker compose up -d
-
-# Testes
-./mvnw test
 ```
+
+A aplicação iniciará em `http://localhost:8080`.
+
+---
+
+### 2. Produção local (Docker Compose — PostgreSQL + Redis + Flyway)
+
+Sobe a aplicação com PostgreSQL 16, Redis 7 e Flyway para migrações.
+
+```bash
+# 1. (Opcional) Defina a JWT_SECRET — se não definir, usa o fallback do docker-compose.yml
+export JWT_SECRET="minha-chave-super-segura-com-pelo-menos-32-caracteres!"
+
+# 2. Build e execute os containers
+docker compose up -d --build
+
+# 3. Acompanhe os logs
+docker compose logs -f app
+```
+
+A aplicação estará disponível em `http://localhost:8080` após o healthcheck passar (~60s).
+
+Para derrubar:
+```bash
+docker compose down -v   # -v remove o volume do PostgreSQL
+```
+
+---
+
+### 3. Apenas banco + Redis (para rodar a app via Maven com profile postgres)
+
+Use quando quiser a aplicação rodando via Maven mas com PostgreSQL/Redis de verdade.
+
+```bash
+# Sobe apenas PostgreSQL e Redis
+docker compose up -d db redis
+
+# Aguarda o PostgreSQL ficar pronto
+docker compose exec db pg_isready -U postgres -d pizzaria
+
+# Executa a aplicação com o profile postgres
+export JWT_SECRET="minha-chave-super-segura-com-pelo-menos-32-caracteres!"
+export DATABASE_URL=jdbc:postgresql://localhost:5432/pizzaria
+export DATABASE_USER=postgres
+export DATABASE_PASSWORD=postgres
+export SPRING_DATA_REDIS_HOST=localhost
+export SPRING_DATA_REDIS_PORT=6379
+
+./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
+```
+
+---
+
+## Testes
+
+### Stack de testes
+
+| Ferramenta | Uso |
+|---|---|
+| JUnit 5 | Runner |
+| Mockito | Mocks e stubs |
+| AssertJ | Assertivas fluentes |
+| TestRestTemplate | Chamadas HTTP nos testes de integração |
+| H2 (in-memory) | Banco de testes (sem PostgreSQL/Redis) |
+| `@TestConfiguration` | Mocks de infraestrutura (JWT, Redis, rate limiter) |
+
+### Estrutura
+
+```
+src/test/
+├── resources/
+│   └── application-test.properties   # H2 + cache none + JWT mock
+└── java/com/pizzaria/
+    ├── config/
+    │   └── TestConfig.java           # @Primary mocks (5 beans)
+    ├── controller/                   # Integração (@SpringBootTest + REST)
+    │   ├── AuthControllerTest.java   #   3 testes
+    │   ├── CardapioControllerTest.java # 1 teste
+    │   └── PizzaControllerTest.java  #   4 testes
+    └── service/                      # Unitários (Mockito puro)
+        ├── AuthServiceTest.java      #   6 testes
+        ├── CardapioServiceTest.java  #   2 testes
+        └── PizzaServiceTest.java     #   8 testes
+```
+
+**Total: 24 testes** (16 unitários + 8 de integração).
+
+### Service (testes unitários)
+
+Usam `@ExtendWith(MockitoExtension.class)` com `@Mock` + `@InjectMocks`. Não carregam o Spring context.
+
+| Classe | Testes | O que cobre |
+|---|---|---|
+| **AuthServiceTest** | 6 | Login feliz, credenciais inválidas, refresh token (rotação, blocklist, tipo inválido), logout |
+| **PizzaServiceTest** | 8 | CRUD completo: findAll paginado, findById (existente/inexistente), findByCategoria, create, update, softDelete, toggle disponibilidade |
+| **CardapioServiceTest** | 2 | Cardápio agrupado por categoria com/sem pizzas disponíveis |
+
+### Controller (testes de integração)
+
+Usam `@SpringBootTest(webEnvironment = RANDOM_PORT)` com `TestRestTemplate` e `@MockBean` nos services. Importam `TestConfig.class` para mockar JWT, Redis e rate limiter.
+
+| Classe | Testes | O que cobre |
+|---|---|---|
+| **AuthControllerTest** | 3 | POST login → 200 com tokens, POST refresh → 200, POST logout sem auth → 401 |
+| **PizzaControllerTest** | 4 | GET listagem paginada → 200, GET por ID → 200, GET por categoria → 200, POST sem auth → 401 |
+| **CardapioControllerTest** | 1 | GET /api/cardapio → 200 com categorias agrupadas |
+
+### Executando os testes
+
+```bash
+# Todos os testes (24)
+./mvnw test
+
+# Apenas unitários (service)
+./mvnw test -Dtest="*ServiceTest"
+
+# Apenas integração (controller)
+./mvnw test -Dtest="*ControllerTest"
+
+# Classe específica
+./mvnw test -Dtest=PizzaServiceTest
+
+# Método específico
+./mvnw test -Dtest=PizzaServiceTest#findById_shouldReturnPizzaWhenExists
+
+# Com logs de SQL
+./mvnw test -Dspring.jpa.show-sql=true
+
+# Relatório de cobertura (gerado pelo surefire em target/surefire-reports/)
+ls target/surefire-reports/*.txt
+```
+
+> ⚠️ Os testes não exigem Redis, PostgreSQL nem Docker. Usam H2 em memória e mocks para toda infraestrutura externa.
+
+---
+
+### Credenciais de teste (seed automático)
+
+| Papel | Email | Senha |
+|---|---|---|
+| ADMIN | `admin@pizzaria.com` | `admin123` |
+| USER | `user@pizzaria.com` | `user123` |
+
+---
+
+### Health check
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+---
+
+### Documentação da API
+
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **OpenAPI JSON:** http://localhost:8080/api-docs
+- **Console H2 (dev apenas):** http://localhost:8080/h2-console
 
 ## Correções Realizadas
 
@@ -325,14 +511,18 @@ docker compose up -d
 - [x] **Dockerfile** — imagem `eclipse-temurin:17-jre-alpine`
 - [x] **docker-compose** — orquestração com app + PostgreSQL 16 + Redis 7
 
-## Pendências (ainda não realizadas)
+## Melhorias recentes (relatório de sessão)
 
-### Observabilidade
-- [ ] **Health check** — adicionar `spring-boot-starter-actuator` com endpoint `/actuator/health`
-- [ ] **Métricas** — expor métricas (contagem de pizzas, cache hits/misses, login attempts)
+### P0
+- [x] Rate limiter alinhado: **5 tentativas / 5 minutos** por IP
+- [x] Fallback dev sem Redis: cache **Caffeine**, rate limit e tokens em memória
 
-### Infraestrutura
-- [ ] **Migration com Flyway** — substituir `ddl-auto=update` por migrations versionadas
+### P1
+- [x] **Actuator** — `/actuator/health`, `/actuator/metrics`, `/actuator/prometheus`
+- [x] **Métricas** — `cardapio.login.attempts`, `cardapio.login.failures`, `cardapio.pizzas.total`
+- [x] **Flyway** — migration `V1__init_schema.sql` no profile `postgres` (`ddl-auto=validate`)
 
-### API
-- [ ] **HATEOAS links** — adicionar links de navegação nas respostas paginadas
+### P2
+- [x] **HATEOAS** — links HAL na listagem paginada e no detalhe da pizza
+- [x] **Role USER** — `user@pizzaria.com` + endpoint `GET /api/auth/me`
+- [x] **Docker healthcheck** — `curl -f http://localhost:8080/actuator/health`

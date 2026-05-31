@@ -2,56 +2,59 @@ package com.pizzaria.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Duration;
-import java.time.Instant;
 
 @Component
+@ConditionalOnProperty(name = "app.redis.enabled", havingValue = "true")
 @RequiredArgsConstructor
-public class RedisRateLimiter {
+public class RedisLoginRateLimiter implements LoginRateLimiter {
 
-    private static final int MAX_ATTEMPTS = 5;
+    static final int MAX_ATTEMPTS = 5;
+    static final Duration WINDOW = Duration.ofMinutes(5);
     private static final String PREFIX = "rate_limit:";
+
     private final StringRedisTemplate redis;
 
+    @Override
     public void checkBlocked() {
-        String ip = getClientIP();
-        String key = keyFor(ip);
-        String countStr = redis.opsForValue().get(key);
-        int count = (countStr != null) ? Integer.parseInt(countStr) : 0;
+        int count = currentCount();
         if (count >= MAX_ATTEMPTS) {
             throw new IllegalStateException("Muitas tentativas de login. Aguarde e tente novamente.");
         }
     }
 
+    @Override
     public void registerFailure() {
-        String ip = getClientIP();
-        String key = keyFor(ip);
+        String key = keyFor(getClientIP());
         Long count = redis.opsForValue().increment(key);
         if (count != null && count == 1) {
-            redis.expire(key, Duration.ofMinutes(1));
+            redis.expire(key, WINDOW);
         }
     }
 
+    @Override
     public void registerSuccess() {
-        String ip = getClientIP();
-        redis.delete(keyFor(ip));
+        redis.delete(keyFor(getClientIP()));
     }
 
+    @Override
     public int getRemainingAttempts() {
-        String ip = getClientIP();
-        String key = keyFor(ip);
-        String countStr = redis.opsForValue().get(key);
-        int count = (countStr != null) ? Integer.parseInt(countStr) : 0;
-        return Math.max(0, MAX_ATTEMPTS - count);
+        return Math.max(0, MAX_ATTEMPTS - currentCount());
+    }
+
+    private int currentCount() {
+        String countStr = redis.opsForValue().get(keyFor(getClientIP()));
+        return countStr != null ? Integer.parseInt(countStr) : 0;
     }
 
     private String keyFor(String ip) {
-        return PREFIX + ip + ":" + (Instant.now().getEpochSecond() / 60);
+        return PREFIX + ip;
     }
 
     private String getClientIP() {

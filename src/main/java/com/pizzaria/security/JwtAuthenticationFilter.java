@@ -10,7 +10,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
-    private final StringRedisTemplate redis;
+    private final TokenStore tokenStore;
 
     @Override
     protected void doFilterInternal(
@@ -52,20 +51,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractUsername(token);
         } catch (ExpiredJwtException | MalformedJwtException ex) {
-            writeUnauthorized(response, "Token inv\u00e1lido ou expirado");
+            writeUnauthorized(response, "Token inválido ou expirado");
             return;
         } catch (JwtException ex) {
             writeUnauthorized(response, "Erro ao processar token");
             return;
         } catch (Exception ex) {
-            writeUnauthorized(response, "Erro de autentica\u00e7\u00e3o");
+            writeUnauthorized(response, "Erro de autenticação");
             return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (!jwtService.isRefreshToken(token)) {
                 String jti = jwtService.extractJti(token);
-                if (Boolean.TRUE.equals(redis.hasKey("blocklist:" + jti))) {
+                if (tokenStore.isBlocklisted(jti)) {
                     writeUnauthorized(response, "Token revogado");
                     return;
                 }

@@ -1,5 +1,6 @@
 package com.pizzaria.enums;
 
 public enum Role {
-    ADMIN
+    ADMIN,
+    USER
 }

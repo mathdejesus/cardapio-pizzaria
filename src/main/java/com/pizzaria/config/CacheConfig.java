@@ -1,6 +1,7 @@
 package com.pizzaria.config;
 
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +14,8 @@ import java.time.Duration;
 public class CacheConfig {
 
     @Bean
-    RedisCacheManagerBuilderCustomizer cacheCustomizer() {
+    @ConditionalOnProperty(name = "app.redis.enabled", havingValue = "true")
+    RedisCacheManagerBuilderCustomizer redisCacheCustomizer() {
         return builder -> builder
                 .withCacheConfiguration("cardapio",
                         RedisCacheConfiguration.defaultCacheConfig()

@@ -1,11 +1,12 @@
 package com.pizzaria.service;
 
-import com.pizzaria.config.RedisRateLimiter;
+import com.pizzaria.config.LoginRateLimiter;
 import com.pizzaria.dto.AuthResponseDTO;
 import com.pizzaria.dto.LoginRequestDTO;
+import com.pizzaria.metrics.CardapioMetrics;
 import com.pizzaria.security.JwtService;
+import com.pizzaria.security.TokenStore;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,10 +23,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
-    private final RedisRateLimiter loginRateLimiter;
-    private final StringRedisTemplate redis;
+    private final LoginRateLimiter loginRateLimiter;
+    private final TokenStore tokenStore;
+    private final CardapioMetrics metrics;
 
     public AuthResponseDTO login(LoginRequestDTO request) {
+        metrics.incrementLoginAttempts();
         loginRateLimiter.checkBlocked();
 
         try {
@@ -33,6 +36,7 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getSenha()));
         } catch (BadCredentialsException ex) {
             loginRateLimiter.registerFailure();
+            metrics.incrementLoginFailures();
             throw ex;
         }
 
@@ -42,7 +46,7 @@ public class AuthService {
         String refreshToken = jwtService.generateRefreshToken(request.getEmail());
         String jti = jwtService.extractJti(refreshToken);
 
-        redis.opsForValue().set("refresh_token:" + jti, request.getEmail(), Duration.ofDays(7));
+        tokenStore.storeRefreshToken(jti, request.getEmail(), Duration.ofDays(7));
 
         return AuthResponseDTO.builder()
                 .accessToken(accessToken)
@@ -60,23 +64,25 @@ public class AuthService {
         String jti = jwtService.extractJti(refreshToken);
         String email = jwtService.extractUsername(refreshToken);
 
-        if (Boolean.TRUE.equals(redis.hasKey("blocklist:" + jti))) {
+        if (tokenStore.isBlocklisted(jti)) {
             throw new IllegalArgumentException("Refresh token revogado");
         }
 
-        String storedEmail = redis.opsForValue().get("refresh_token:" + jti);
-        if (storedEmail == null || !storedEmail.equals(email)) {
+        String storedEmail = tokenStore.getRefreshTokenEmail(jti)
+                .orElseThrow(() -> new IllegalArgumentException("Refresh token invalido ou expirado"));
+
+        if (!storedEmail.equals(email)) {
             throw new IllegalArgumentException("Refresh token invalido ou expirado");
         }
 
-        redis.delete("refresh_token:" + jti);
+        tokenStore.deleteRefreshToken(jti);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String newAccessToken = jwtService.generateToken(userDetails);
         String newRefreshToken = jwtService.generateRefreshToken(email);
         String newJti = jwtService.extractJti(newRefreshToken);
 
-        redis.opsForValue().set("refresh_token:" + newJti, email, Duration.ofDays(7));
+        tokenStore.storeRefreshToken(newJti, email, Duration.ofDays(7));
 
         return AuthResponseDTO.builder()
                 .accessToken(newAccessToken)
@@ -90,7 +96,7 @@ public class AuthService {
         String jti = jwtService.extractJti(token);
         long remaining = jwtService.getRemainingExpirySeconds(token);
         if (remaining > 0) {
-            redis.opsForValue().set("blocklist:" + jti, "true", Duration.ofSeconds(remaining));
+            tokenStore.addToBlocklist(jti, Duration.ofSeconds(remaining));
         }
     }
 }

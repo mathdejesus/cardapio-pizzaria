@@ -9,28 +9,41 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/pizzas")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class PizzaController {
 
     private final PizzaService pizzaService;
+    private final PagedResourcesAssembler<PizzaResponseDTO> pagedResourcesAssembler;
 
     @GetMapping
-    public ResponseEntity<Page<PizzaResponseDTO>> findAll(Pageable pageable) {
-        return ResponseEntity.ok(pizzaService.findAll(pageable));
+    public ResponseEntity<PagedModel<EntityModel<PizzaResponseDTO>>> findAll(Pageable pageable) {
+        Page<PizzaResponseDTO> page = pizzaService.findAll(pageable);
+        PagedModel<EntityModel<PizzaResponseDTO>> model = pagedResourcesAssembler.toModel(page, dto ->
+                EntityModel.of(dto, linkTo(methodOn(PizzaController.class).findById(dto.getId())).withSelfRel()));
+        return ResponseEntity.ok(model);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PizzaResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(pizzaService.findById(id));
+    public ResponseEntity<EntityModel<PizzaResponseDTO>> findById(@PathVariable Long id) {
+        PizzaResponseDTO dto = pizzaService.findById(id);
+        EntityModel<PizzaResponseDTO> model = EntityModel.of(dto,
+                linkTo(methodOn(PizzaController.class).findById(id)).withSelfRel(),
+                linkTo(methodOn(PizzaController.class).findAll(Pageable.unpaged())).withRel("pizzas"));
+        return ResponseEntity.ok(model);
     }
 
     @GetMapping("/categoria/{categoria}")
@@ -39,11 +52,13 @@ public class PizzaController {
     }
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PizzaResponseDTO> create(@Valid @RequestBody PizzaRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pizzaService.create(request));
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PizzaResponseDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody PizzaRequestDTO request) {
@@ -51,12 +66,14 @@ public class PizzaController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         pizzaService.softDelete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/disponibilidade")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PizzaResponseDTO> updateDisponibilidade(
             @PathVariable Long id,
             @Valid @RequestBody DisponibilidadeRequestDTO request) {

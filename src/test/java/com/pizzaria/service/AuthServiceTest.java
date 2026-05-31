@@ -1,16 +1,16 @@
 package com.pizzaria.service;
 
-import com.pizzaria.config.RedisRateLimiter;
+import com.pizzaria.config.LoginRateLimiter;
 import com.pizzaria.dto.AuthResponseDTO;
 import com.pizzaria.dto.LoginRequestDTO;
+import com.pizzaria.metrics.CardapioMetrics;
 import com.pizzaria.security.JwtService;
+import com.pizzaria.security.TokenStore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +18,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,13 +41,13 @@ class AuthServiceTest {
     JwtService jwtService;
 
     @Mock
-    RedisRateLimiter loginRateLimiter;
+    LoginRateLimiter loginRateLimiter;
 
     @Mock
-    StringRedisTemplate redis;
+    TokenStore tokenStore;
 
     @Mock
-    ValueOperations<String, String> valueOps;
+    CardapioMetrics metrics;
 
     @InjectMocks
     AuthService authService;
@@ -59,14 +61,14 @@ class AuthServiceTest {
         when(jwtService.generateRefreshToken("admin@pizzaria.com")).thenReturn("refresh-token");
         when(jwtService.extractJti("refresh-token")).thenReturn("jti-123");
         when(userDetailsService.loadUserByUsername("admin@pizzaria.com")).thenReturn(userDetails);
-        when(redis.opsForValue()).thenReturn(valueOps);
 
         AuthResponseDTO response = authService.login(loginRequest);
 
         assertThat(response.getAccessToken()).isEqualTo("access-token");
         assertThat(response.getRefreshToken()).isEqualTo("refresh-token");
         assertThat(response.getTokenType()).isEqualTo("Bearer");
-        verify(valueOps).set(eq("refresh_token:jti-123"), eq("admin@pizzaria.com"), any());
+        verify(tokenStore).storeRefreshToken(eq("jti-123"), eq("admin@pizzaria.com"), any(Duration.class));
+        verify(metrics).incrementLoginAttempts();
     }
 
     @Test
@@ -79,6 +81,7 @@ class AuthServiceTest {
                 .isInstanceOf(BadCredentialsException.class);
 
         verify(loginRateLimiter).registerFailure();
+        verify(metrics).incrementLoginFailures();
     }
 
     @Test
@@ -86,9 +89,8 @@ class AuthServiceTest {
         when(jwtService.isRefreshToken("old-refresh")).thenReturn(true);
         when(jwtService.extractJti("old-refresh")).thenReturn("old-jti");
         when(jwtService.extractUsername("old-refresh")).thenReturn("admin@pizzaria.com");
-        when(redis.hasKey("blocklist:old-jti")).thenReturn(false);
-        when(redis.opsForValue()).thenReturn(valueOps);
-        when(valueOps.get("refresh_token:old-jti")).thenReturn("admin@pizzaria.com");
+        when(tokenStore.isBlocklisted("old-jti")).thenReturn(false);
+        when(tokenStore.getRefreshTokenEmail("old-jti")).thenReturn(Optional.of("admin@pizzaria.com"));
         when(userDetailsService.loadUserByUsername("admin@pizzaria.com")).thenReturn(userDetails);
         when(jwtService.generateToken(userDetails)).thenReturn("new-access");
         when(jwtService.generateRefreshToken("admin@pizzaria.com")).thenReturn("new-refresh");
@@ -98,8 +100,8 @@ class AuthServiceTest {
 
         assertThat(response.getAccessToken()).isEqualTo("new-access");
         assertThat(response.getRefreshToken()).isEqualTo("new-refresh");
-        verify(redis).delete("refresh_token:old-jti");
-        verify(valueOps).set(eq("refresh_token:new-jti"), eq("admin@pizzaria.com"), any());
+        verify(tokenStore).deleteRefreshToken("old-jti");
+        verify(tokenStore).storeRefreshToken(eq("new-jti"), eq("admin@pizzaria.com"), any(Duration.class));
     }
 
     @Test
@@ -115,7 +117,7 @@ class AuthServiceTest {
         when(jwtService.isRefreshToken("revoked-refresh")).thenReturn(true);
         when(jwtService.extractJti("revoked-refresh")).thenReturn("revoked-jti");
         when(jwtService.extractUsername("revoked-refresh")).thenReturn("admin@pizzaria.com");
-        when(redis.hasKey("blocklist:revoked-jti")).thenReturn(true);
+        when(tokenStore.isBlocklisted("revoked-jti")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.refreshToken("revoked-refresh"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -126,10 +128,9 @@ class AuthServiceTest {
     void logout_shouldAddTokenToBlocklist() {
         when(jwtService.extractJti("token")).thenReturn("jti-123");
         when(jwtService.getRemainingExpirySeconds("token")).thenReturn(3600L);
-        when(redis.opsForValue()).thenReturn(valueOps);
 
         authService.logout("token");
 
-        verify(valueOps).set(eq("blocklist:jti-123"), eq("true"), any());
+        verify(tokenStore).addToBlocklist(eq("jti-123"), any(Duration.class));
     }
 }

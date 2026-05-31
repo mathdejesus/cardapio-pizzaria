@@ -1,10 +1,11 @@
 package com.pizzaria.config;
 
+import com.pizzaria.metrics.CardapioMetrics;
 import com.pizzaria.security.JwtService;
+import com.pizzaria.security.TokenStore;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static org.mockito.Mockito.mock;
@@ -14,14 +15,20 @@ public class TestConfig {
 
     @Bean
     @Primary
-    public StringRedisTemplate stringRedisTemplate() {
-        return mock(StringRedisTemplate.class);
+    public LoginRateLimiter loginRateLimiter() {
+        return mock(LoginRateLimiter.class);
     }
 
     @Bean
     @Primary
-    public RedisRateLimiter redisRateLimiter() {
-        return mock(RedisRateLimiter.class);
+    public TokenStore tokenStore() {
+        return mock(TokenStore.class);
+    }
+
+    @Bean
+    @Primary
+    public CardapioMetrics cardapioMetrics() {
+        return mock(CardapioMetrics.class);
     }
 
     @Bean

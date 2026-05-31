@@ -15,7 +15,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class RateLimitHeadersFilter extends OncePerRequestFilter {
 
-    private final RedisRateLimiter rateLimiter;
+    private final LoginRateLimiter rateLimiter;
 
     @Override
     protected void doFilterInternal(
