@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-05-31T22:01:07-0300",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-01T09:30:31-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.11 (Ubuntu)"
 )
 @Component
 public class PizzaMapperImpl implements PizzaMapper {
@@ -27,16 +27,16 @@ public class PizzaMapperImpl implements PizzaMapper {
 
         PizzaResponseDTO.PizzaResponseDTOBuilder pizzaResponseDTO = PizzaResponseDTO.builder();
 
-        pizzaResponseDTO.categoria( pizza.getCategoria() );
-        pizzaResponseDTO.descricao( pizza.getDescricao() );
-        pizzaResponseDTO.disponivel( pizza.isDisponivel() );
         pizzaResponseDTO.id( pizza.getId() );
-        List<String> list = pizza.getIngredientes();
-        if ( list != null ) {
-            pizzaResponseDTO.ingredientes( new ArrayList<String>( list ) );
-        }
         pizzaResponseDTO.nome( pizza.getNome() );
+        pizzaResponseDTO.descricao( pizza.getDescricao() );
+        pizzaResponseDTO.categoria( pizza.getCategoria() );
         pizzaResponseDTO.tamanhos( tamanhoListToTamanhoResponseDTOList( pizza.getTamanhos() ) );
+        List<String> list1 = pizza.getIngredientes();
+        if ( list1 != null ) {
+            pizzaResponseDTO.ingredientes( new ArrayList<String>( list1 ) );
+        }
+        pizzaResponseDTO.disponivel( pizza.isDisponivel() );
 
         return pizzaResponseDTO.build();
     }
@@ -49,14 +49,14 @@ public class PizzaMapperImpl implements PizzaMapper {
 
         Pizza.PizzaBuilder pizza = Pizza.builder();
 
-        pizza.categoria( dto.getCategoria() );
-        pizza.descricao( dto.getDescricao() );
-        List<String> list = dto.getIngredientes();
-        if ( list != null ) {
-            pizza.ingredientes( new ArrayList<String>( list ) );
-        }
         pizza.nome( dto.getNome() );
+        pizza.descricao( dto.getDescricao() );
+        pizza.categoria( dto.getCategoria() );
         pizza.tamanhos( tamanhoRequestDTOListToTamanhoList( dto.getTamanhos() ) );
+        List<String> list1 = dto.getIngredientes();
+        if ( list1 != null ) {
+            pizza.ingredientes( new ArrayList<String>( list1 ) );
+        }
 
         return pizza.build();
     }
@@ -69,9 +69,9 @@ public class PizzaMapperImpl implements PizzaMapper {
 
         TamanhoResponseDTO.TamanhoResponseDTOBuilder tamanhoResponseDTO = TamanhoResponseDTO.builder();
 
-        tamanhoResponseDTO.fatias( tamanho.getFatias() );
-        tamanhoResponseDTO.preco( tamanho.getPreco() );
         tamanhoResponseDTO.tipo( tamanho.getTipo() );
+        tamanhoResponseDTO.preco( tamanho.getPreco() );
+        tamanhoResponseDTO.fatias( tamanho.getFatias() );
 
         return tamanhoResponseDTO.build();
     }
@@ -84,11 +84,11 @@ public class PizzaMapperImpl implements PizzaMapper {
 
         Tamanho.TamanhoBuilder tamanho = Tamanho.builder();
 
+        tamanho.tipo( dto.getTipo() );
+        tamanho.preco( dto.getPreco() );
         if ( dto.getFatias() != null ) {
             tamanho.fatias( dto.getFatias() );
         }
-        tamanho.preco( dto.getPreco() );
-        tamanho.tipo( dto.getTipo() );
 
         return tamanho.build();
     }

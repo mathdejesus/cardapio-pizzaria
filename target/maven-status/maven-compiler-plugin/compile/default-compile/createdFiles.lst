@@ -31,6 +31,7 @@ com/pizzaria/dto/DisponibilidadeRequestDTO$DisponibilidadeRequestDTOBuilder.clas
 com/pizzaria/config/InMemoryLoginRateLimiter$AttemptWindow.class
 com/pizzaria/exception/CategoriaInvalidaException.class
 com/pizzaria/dto/CardapioResponseDTO.class
+com/pizzaria/config/IpUtils.class
 com/pizzaria/repository/PizzaRepository.class
 com/pizzaria/config/DataInitializer.class
 com/pizzaria/config/ActuatorSecurityConfig.class
@@ -41,6 +42,7 @@ com/pizzaria/dto/TamanhoRequestDTO.class
 com/pizzaria/dto/RefreshTokenRequestDTO.class
 com/pizzaria/config/DataInitializer$PizzaSeed.class
 com/pizzaria/controller/CardapioController.class
+com/pizzaria/exception/RateLimitExceededException.class
 com/pizzaria/security/UserDetailsServiceImpl.class
 com/pizzaria/dto/PizzaRequestDTO$PizzaRequestDTOBuilder.class
 com/pizzaria/PizzariaApplication.class

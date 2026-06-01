@@ -40,7 +40,10 @@ public class AuthController {
     @PostMapping("/logout")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build();
+        }
+        String token = authHeader.substring(7);
         authService.logout(token);
         return ResponseEntity.noContent().build();
     }

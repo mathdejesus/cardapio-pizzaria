@@ -1,0 +1,312 @@
+{
+  "/home/matheus/MeusProjetos/Cardapio/mvnw": {
+    "mtime": 1757348468.0,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": "ab50dd89da7da2346b28003352eeeeeb"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/PizzariaApplication.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "a61b1bb23d34106635a87cbbb0c3fcde",
+    "semantic_hash": "a61b1bb23d34106635a87cbbb0c3fcde"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/ActuatorSecurityConfig.java": {
+    "mtime": 1780158920.324596,
+    "ast_hash": "878c74aab90a1fbf47f57e7c4ce61d58",
+    "semantic_hash": "878c74aab90a1fbf47f57e7c4ce61d58"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/CacheConfig.java": {
+    "mtime": 1780158910.9079072,
+    "ast_hash": "69d9d0c63004120baa4602416d73daa6",
+    "semantic_hash": "69d9d0c63004120baa4602416d73daa6"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/CorsConfig.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "a60c0eb864bc03b54dfd5ee7dcfc1bb7",
+    "semantic_hash": "a60c0eb864bc03b54dfd5ee7dcfc1bb7"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/DataInitializer.java": {
+    "mtime": 1780158958.1233466,
+    "ast_hash": "d59c307c0e36f49791cd352a9f3b2c60",
+    "semantic_hash": "d59c307c0e36f49791cd352a9f3b2c60"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/InMemoryLoginRateLimiter.java": {
+    "mtime": 1780158886.1159773,
+    "ast_hash": "a5395ea964435c511acfbede872c2a65",
+    "semantic_hash": "a5395ea964435c511acfbede872c2a65"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/LoginRateLimiter.java": {
+    "mtime": 1780158878.8742025,
+    "ast_hash": "1bf36da8010d761b859099775f07f515",
+    "semantic_hash": "1bf36da8010d761b859099775f07f515"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/OpenApiConfig.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "139a40eba61c2a3260fa8db97695ffc1",
+    "semantic_hash": "139a40eba61c2a3260fa8db97695ffc1"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/RateLimitHeadersFilter.java": {
+    "mtime": 1780158909.8882895,
+    "ast_hash": "282964de1b6c47a3490860eee3c31e48",
+    "semantic_hash": "282964de1b6c47a3490860eee3c31e48"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/RedisLoginRateLimiter.java": {
+    "mtime": 1780158882.0302155,
+    "ast_hash": "5c22de69fa21bb91cee92c2248a85ec2",
+    "semantic_hash": "5c22de69fa21bb91cee92c2248a85ec2"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/config/SecurityConfig.java": {
+    "mtime": 1780158936.8971336,
+    "ast_hash": "09bcd4f9c3d8138ac2d39e06378849f1",
+    "semantic_hash": "09bcd4f9c3d8138ac2d39e06378849f1"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/controller/AuthController.java": {
+    "mtime": 1780158931.18368,
+    "ast_hash": "3185c447ed70050a8f5c7f8962eff2e9",
+    "semantic_hash": "3185c447ed70050a8f5c7f8962eff2e9"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/controller/CardapioController.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "34c36831ee60164c0cc2f61874df42c8",
+    "semantic_hash": "34c36831ee60164c0cc2f61874df42c8"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/controller/PizzaController.java": {
+    "mtime": 1780158928.4041684,
+    "ast_hash": "d91f2b037631b0b2e60eeee5e591ee43",
+    "semantic_hash": "d91f2b037631b0b2e60eeee5e591ee43"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/AuthResponseDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "8d011c278a42c83ed8f9db0530e23c72",
+    "semantic_hash": "8d011c278a42c83ed8f9db0530e23c72"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/CardapioResponseDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "5f45553b9a7d5b7a55a37ac37db1adc0",
+    "semantic_hash": "5f45553b9a7d5b7a55a37ac37db1adc0"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/DisponibilidadeRequestDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "814d4a8d8259c907e85ca5920dda6e39",
+    "semantic_hash": "814d4a8d8259c907e85ca5920dda6e39"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/LoginRequestDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "02c4e28b1aa2c331de7d93bff6d4a77e",
+    "semantic_hash": "02c4e28b1aa2c331de7d93bff6d4a77e"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/PizzaRequestDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "98f57757fd55795e59b1b2e2a092c0e5",
+    "semantic_hash": "98f57757fd55795e59b1b2e2a092c0e5"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/PizzaResponseDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "7b98c02e664a56c01eb6c5001af136f5",
+    "semantic_hash": "7b98c02e664a56c01eb6c5001af136f5"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/RefreshTokenRequestDTO.java": {
+    "mtime": 1780057270.2956545,
+    "ast_hash": "4ff1386fa3bb3eba038f64bd94816257",
+    "semantic_hash": "4ff1386fa3bb3eba038f64bd94816257"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/TamanhoRequestDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "ec11d93d9476b7f6cc614e8554464e86",
+    "semantic_hash": "ec11d93d9476b7f6cc614e8554464e86"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/TamanhoResponseDTO.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "19a448879018b2c0a3cb93e8c4e39485",
+    "semantic_hash": "19a448879018b2c0a3cb93e8c4e39485"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/dto/UserProfileDTO.java": {
+    "mtime": 1780158921.305934,
+    "ast_hash": "835b8549888b76f0b20918cde9d1e14d",
+    "semantic_hash": "835b8549888b76f0b20918cde9d1e14d"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/enums/Categoria.java": {
+    "mtime": 1780143777.3091164,
+    "ast_hash": "582c44ef3fd878ae0e0b4a5e161be338",
+    "semantic_hash": "582c44ef3fd878ae0e0b4a5e161be338"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/enums/Role.java": {
+    "mtime": 1780158921.0412042,
+    "ast_hash": "8c15e37e483ab0cf11d9a08100ef6fe0",
+    "semantic_hash": "8c15e37e483ab0cf11d9a08100ef6fe0"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/enums/TamanhoTipo.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "69e17b680609a485474334cff723b51c",
+    "semantic_hash": "69e17b680609a485474334cff723b51c"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/exception/CategoriaInvalidaException.java": {
+    "mtime": 1780143777.3281164,
+    "ast_hash": "8044897f4b7157d7409a537bd808e7c2",
+    "semantic_hash": "8044897f4b7157d7409a537bd808e7c2"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/exception/ErrorResponse.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "b7bce69566e3b2ff8ade2ab87b87c33a",
+    "semantic_hash": "b7bce69566e3b2ff8ade2ab87b87c33a"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/exception/GlobalExceptionHandler.java": {
+    "mtime": 1780158978.989569,
+    "ast_hash": "2808b9e7602c6a207e07286b8808ab0f",
+    "semantic_hash": "2808b9e7602c6a207e07286b8808ab0f"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/exception/PizzaNotFoundException.java": {
+    "mtime": 1780143777.2954535,
+    "ast_hash": "e66871d2b6d62c875053d45076a41adb",
+    "semantic_hash": "e66871d2b6d62c875053d45076a41adb"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/mapper/PizzaMapper.java": {
+    "mtime": 1780057326.2239585,
+    "ast_hash": "02350004b1cb898387901a8535bf1e0f",
+    "semantic_hash": "02350004b1cb898387901a8535bf1e0f"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/metrics/CardapioMetrics.java": {
+    "mtime": 1780158919.102932,
+    "ast_hash": "938b988419cdaa00d229d8843764b525",
+    "semantic_hash": "938b988419cdaa00d229d8843764b525"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/model/Pizza.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "41f85ea369047da67313e0dd8a84d216",
+    "semantic_hash": "41f85ea369047da67313e0dd8a84d216"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/model/Tamanho.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "c897b37811f9a634d53c966b8a14ec6d",
+    "semantic_hash": "c897b37811f9a634d53c966b8a14ec6d"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/model/Usuario.java": {
+    "mtime": 1780143777.3221164,
+    "ast_hash": "536057be5dedc073669c7bb90ceb24f8",
+    "semantic_hash": "536057be5dedc073669c7bb90ceb24f8"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/repository/PizzaRepository.java": {
+    "mtime": 1780143777.3281164,
+    "ast_hash": "956614b5d61d624d8888fb88ee92801c",
+    "semantic_hash": "956614b5d61d624d8888fb88ee92801c"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/repository/UsuarioRepository.java": {
+    "mtime": 1780143777.2954535,
+    "ast_hash": "38cb1acf9fd8a2835726fcff7a5e81ac",
+    "semantic_hash": "38cb1acf9fd8a2835726fcff7a5e81ac"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/InMemoryTokenStore.java": {
+    "mtime": 1780158893.0997138,
+    "ast_hash": "2b030c3fe1c295cbec4455016c447246",
+    "semantic_hash": "2b030c3fe1c295cbec4455016c447246"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/JwtAuthenticationEntryPoint.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "45a9fe3f40794374ecc9677224e24ba9",
+    "semantic_hash": "45a9fe3f40794374ecc9677224e24ba9"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/JwtAuthenticationFilter.java": {
+    "mtime": 1780158908.6334445,
+    "ast_hash": "a37e8bfe6eb77cf377c94d39892fe9f7",
+    "semantic_hash": "a37e8bfe6eb77cf377c94d39892fe9f7"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/JwtService.java": {
+    "mtime": 1780143777.3041165,
+    "ast_hash": "36a6a25d9fca8eeac178888944311f22",
+    "semantic_hash": "36a6a25d9fca8eeac178888944311f22"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/RedisTokenStore.java": {
+    "mtime": 1780158888.5066872,
+    "ast_hash": "633ce89fe940d8be7aa273c7800e3fa8",
+    "semantic_hash": "633ce89fe940d8be7aa273c7800e3fa8"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/TokenStore.java": {
+    "mtime": 1780158886.9390414,
+    "ast_hash": "7737fd1bf24b4731ad6aff5ad8c27ad9",
+    "semantic_hash": "7737fd1bf24b4731ad6aff5ad8c27ad9"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/security/UserDetailsServiceImpl.java": {
+    "mtime": 1780143777.3021164,
+    "ast_hash": "6322c7a405b4ec79994497ee7100bc56",
+    "semantic_hash": "6322c7a405b4ec79994497ee7100bc56"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/service/AuthService.java": {
+    "mtime": 1780158904.5500805,
+    "ast_hash": "25e5bdc2ef8a8245c1bd50a60f742a49",
+    "semantic_hash": "25e5bdc2ef8a8245c1bd50a60f742a49"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/service/CardapioService.java": {
+    "mtime": 1780143777.294751,
+    "ast_hash": "2850d0a7d075e1a031e865ea3405401d",
+    "semantic_hash": "2850d0a7d075e1a031e865ea3405401d"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/service/PizzaService.java": {
+    "mtime": 1780143777.2954535,
+    "ast_hash": "ab4e7ee4ed7fdcd6ebdd5514d63ac37d",
+    "semantic_hash": "ab4e7ee4ed7fdcd6ebdd5514d63ac37d"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/java/com/pizzaria/service/UserService.java": {
+    "mtime": 1780158922.893878,
+    "ast_hash": "1e4a8c0043e9ddd668760197d2f7d7a9",
+    "semantic_hash": "1e4a8c0043e9ddd668760197d2f7d7a9"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/main/resources/db/migration/V1__init_schema.sql": {
+    "mtime": 1780158917.1622636,
+    "ast_hash": "e98f118e424a9e7748af07f07831cfde",
+    "semantic_hash": "e98f118e424a9e7748af07f07831cfde"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/config/TestConfig.java": {
+    "mtime": 1780158961.4821763,
+    "ast_hash": "a1f5a7e4fb06a7640348235761f9b8a4",
+    "semantic_hash": "a1f5a7e4fb06a7640348235761f9b8a4"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/controller/AuthControllerTest.java": {
+    "mtime": 1780057749.3214626,
+    "ast_hash": "f96e76199a77d272a02e68341658d843",
+    "semantic_hash": "f96e76199a77d272a02e68341658d843"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/controller/CardapioControllerTest.java": {
+    "mtime": 1780057740.716596,
+    "ast_hash": "334de66ae1ce61904579bc747161b530",
+    "semantic_hash": "334de66ae1ce61904579bc747161b530"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/controller/PizzaControllerTest.java": {
+    "mtime": 1780057865.2446685,
+    "ast_hash": "a74c092404703079a0366f3979eb6e88",
+    "semantic_hash": "a74c092404703079a0366f3979eb6e88"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/service/AuthServiceTest.java": {
+    "mtime": 1780158969.5683718,
+    "ast_hash": "99fce1cbd1c750ca2fec70bfe1b6c80c",
+    "semantic_hash": "99fce1cbd1c750ca2fec70bfe1b6c80c"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/service/CardapioServiceTest.java": {
+    "mtime": 1780057417.7578197,
+    "ast_hash": "e10de118b24b704201d21735948abf29",
+    "semantic_hash": "e10de118b24b704201d21735948abf29"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/src/test/java/com/pizzaria/service/PizzaServiceTest.java": {
+    "mtime": 1780057396.5550835,
+    "ast_hash": "bcae853ce2f43afd5360beaea0542dbd",
+    "semantic_hash": "bcae853ce2f43afd5360beaea0542dbd"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/AGENTS.md": {
+    "mtime": 1780173968.8067987,
+    "ast_hash": "6824b1d1aac4b19eb6703fe72187d136",
+    "semantic_hash": "6824b1d1aac4b19eb6703fe72187d136"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/README.md": {
+    "mtime": 1780160401.3321226,
+    "ast_hash": "75e4c170f83e5374ab3189f7c6dfff60",
+    "semantic_hash": "75e4c170f83e5374ab3189f7c6dfff60"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/docker-compose.yml": {
+    "mtime": 1780158980.1385617,
+    "ast_hash": "de3c5c926b99642feb7c947064725303",
+    "semantic_hash": "de3c5c926b99642feb7c947064725303"
+  },
+  "/home/matheus/MeusProjetos/Cardapio/relatorio-sessao.md": {
+    "mtime": 1780158332.7387846,
+    "ast_hash": "5097684220846be4ad5499befd6b4b7b",
+    "semantic_hash": "5097684220846be4ad5499befd6b4b7b"
+  }
+}

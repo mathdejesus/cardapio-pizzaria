@@ -1,10 +1,8 @@
 package com.pizzaria.config;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.pizzaria.exception.RateLimitExceededException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Instant;
 import java.util.Map;
@@ -21,14 +19,14 @@ public class InMemoryLoginRateLimiter implements LoginRateLimiter {
 
     @Override
     public void checkBlocked() {
-        if (currentCount(getClientIP()) >= MAX_ATTEMPTS) {
-            throw new IllegalStateException("Muitas tentativas de login. Aguarde e tente novamente.");
+        if (currentCount(IpUtils.getClientIP()) >= MAX_ATTEMPTS) {
+            throw new RateLimitExceededException();
         }
     }
 
     @Override
     public void registerFailure() {
-        String ip = getClientIP();
+        String ip = IpUtils.getClientIP();
         attempts.compute(ip, (key, window) -> {
             Instant now = Instant.now();
             if (window == null || window.isExpired(now)) {
@@ -41,12 +39,12 @@ public class InMemoryLoginRateLimiter implements LoginRateLimiter {
 
     @Override
     public void registerSuccess() {
-        attempts.remove(getClientIP());
+        attempts.remove(IpUtils.getClientIP());
     }
 
     @Override
     public int getRemainingAttempts() {
-        return Math.max(0, MAX_ATTEMPTS - currentCount(getClientIP()));
+        return Math.max(0, MAX_ATTEMPTS - currentCount(IpUtils.getClientIP()));
     }
 
     private int currentCount(String ip) {
@@ -55,19 +53,6 @@ public class InMemoryLoginRateLimiter implements LoginRateLimiter {
             return 0;
         }
         return window.count();
-    }
-
-    private String getClientIP() {
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs != null) {
-            HttpServletRequest request = attrs.getRequest();
-            String xfwd = request.getHeader("X-Forwarded-For");
-            if (xfwd != null && !xfwd.isBlank()) {
-                return xfwd.split(",")[0].trim();
-            }
-            return request.getRemoteAddr();
-        }
-        return "unknown";
     }
 
     private static final class AttemptWindow {

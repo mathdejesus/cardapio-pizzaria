@@ -7,6 +7,7 @@ import com.pizzaria.mapper.PizzaMapper;
 import com.pizzaria.model.Pizza;
 import com.pizzaria.repository.PizzaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class CardapioService {
     private final PizzaMapper pizzaMapper;
 
     @Transactional(readOnly = true)
-    @org.springframework.cache.annotation.Cacheable(value = "cardapio")
+    @Cacheable(value = "cardapio")
     public CardapioResponseDTO getCardapio() {
         List<Pizza> pizzas = pizzaRepository.findByDisponivelTrue();
         List<PizzaResponseDTO> dtos = pizzas.stream()

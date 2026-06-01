@@ -2,6 +2,7 @@ package com.pizzaria.service;
 
 import com.pizzaria.dto.*;
 import com.pizzaria.enums.Categoria;
+import com.pizzaria.enums.TamanhoTipo;
 import com.pizzaria.exception.CategoriaInvalidaException;
 import com.pizzaria.exception.PizzaNotFoundException;
 import com.pizzaria.mapper.PizzaMapper;
@@ -14,8 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +46,11 @@ public class PizzaService {
     @Transactional
     @CacheEvict(value = "cardapio", allEntries = true)
     public PizzaResponseDTO create(PizzaRequestDTO request) {
+        validateTamanhos(request.getTamanhos());
         Pizza pizza = pizzaMapper.toEntity(request);
         pizza.setDisponivel(true);
         pizza.setDeleted(false);
-        pizza.setIngredientes(new ArrayList<>(request.getIngredientes()));
+        pizza.setIngredientes(pizzaMapper.toIngredientesFromDTO(request));
 
         return pizzaMapper.toResponse(pizzaRepository.save(pizza));
     }
@@ -56,13 +58,14 @@ public class PizzaService {
     @Transactional
     @CacheEvict(value = "cardapio", allEntries = true)
     public PizzaResponseDTO update(Long id, PizzaRequestDTO request) {
+        validateTamanhos(request.getTamanhos());
         Pizza pizza = findActivePizza(id);
         Pizza mapped = pizzaMapper.toEntity(request);
         pizza.setNome(mapped.getNome());
         pizza.setDescricao(mapped.getDescricao());
         pizza.setCategoria(mapped.getCategoria());
         pizza.setTamanhos(mapped.getTamanhos());
-        pizza.setIngredientes(new ArrayList<>(request.getIngredientes()));
+        pizza.setIngredientes(pizzaMapper.toIngredientesFromDTO(request));
 
         return pizzaMapper.toResponse(pizza);
     }
@@ -85,6 +88,15 @@ public class PizzaService {
     private Pizza findActivePizza(Long id) {
         return pizzaRepository.findById(id)
                 .orElseThrow(() -> new PizzaNotFoundException(id));
+    }
+
+    private void validateTamanhos(List<TamanhoRequestDTO> tamanhos) {
+        Set<TamanhoTipo> tipos = tamanhos.stream()
+                .map(TamanhoRequestDTO::getTipo)
+                .collect(java.util.stream.Collectors.toSet());
+        if (tipos.size() != tamanhos.size()) {
+            throw new IllegalArgumentException("Não é possível cadastrar tamanhos com tipos duplicados");
+        }
     }
 
     private Categoria parseCategoria(String categoria) {

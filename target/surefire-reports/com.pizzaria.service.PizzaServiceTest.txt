@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.pizzaria.service.PizzaServiceTest
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.167 s -- in com.pizzaria.service.PizzaServiceTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.292 s -- in com.pizzaria.service.PizzaServiceTest

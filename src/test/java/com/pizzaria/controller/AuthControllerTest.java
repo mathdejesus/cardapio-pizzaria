@@ -11,9 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,9 +74,8 @@ class AuthControllerTest {
     }
 
     @Test
-    void logout_shouldReturnNoContent() {
-        ResponseEntity<Void> result = rest.withBasicAuth("admin@pizzaria.com", "admin123")
-                .postForEntity("/api/auth/logout", null, Void.class);
+    void logout_shouldReturnUnauthorizedWhenNoAuth() {
+        ResponseEntity<Void> result = rest.postForEntity("/api/auth/logout", null, Void.class);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }

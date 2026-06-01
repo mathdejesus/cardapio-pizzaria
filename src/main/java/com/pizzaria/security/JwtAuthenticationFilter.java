@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -62,13 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (!jwtService.isRefreshToken(token)) {
-                String jti = jwtService.extractJti(token);
-                if (tokenStore.isBlocklisted(jti)) {
-                    writeUnauthorized(response, "Token revogado");
-                    return;
-                }
+            if (jwtService.isRefreshToken(token)) {
+                writeUnauthorized(response, "Refresh token não pode ser usado para autenticação");
+                return;
             }
+
+            String jti = jwtService.extractJti(token);
+            if (tokenStore.isBlocklisted(jti)) {
+                writeUnauthorized(response, "Token revogado");
+                return;
+            }
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(token, userDetails)) {
@@ -85,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
         ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
                 .message(message)
                 .build();

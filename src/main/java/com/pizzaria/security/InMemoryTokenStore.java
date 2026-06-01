@@ -18,6 +18,7 @@ public class InMemoryTokenStore implements TokenStore {
 
     @Override
     public void storeRefreshToken(String jti, String email, Duration ttl) {
+        cleanupExpiredRefreshTokens();
         refreshTokens.put(jti, new Entry(email, Instant.now().plus(ttl)));
     }
 
@@ -38,6 +39,7 @@ public class InMemoryTokenStore implements TokenStore {
 
     @Override
     public void addToBlocklist(String jti, Duration ttl) {
+        cleanupExpiredBlocklist();
         blocklist.put(jti, Instant.now().plus(ttl));
     }
 
@@ -58,5 +60,13 @@ public class InMemoryTokenStore implements TokenStore {
         boolean isExpired() {
             return Instant.now().isAfter(expiresAt);
         }
+    }
+
+    private void cleanupExpiredRefreshTokens() {
+        refreshTokens.entrySet().removeIf(e -> e.getValue().isExpired());
+    }
+
+    private void cleanupExpiredBlocklist() {
+        blocklist.entrySet().removeIf(e -> Instant.now().isAfter(e.getValue()));
     }
 }

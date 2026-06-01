@@ -11,7 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @RestControllerAdvice
@@ -55,8 +55,8 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.FORBIDDEN, "Acesso negado", null);
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimit(RateLimitExceededException ex) {
         return buildError(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), null);
     }
 
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String message, List<String> errors) {
         ErrorResponse body = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .status(status.value())
                 .message(message)
                 .errors(errors)

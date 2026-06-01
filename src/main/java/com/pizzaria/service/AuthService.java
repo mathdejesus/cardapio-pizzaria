@@ -93,10 +93,14 @@ public class AuthService {
     }
 
     public void logout(String token) {
-        String jti = jwtService.extractJti(token);
-        long remaining = jwtService.getRemainingExpirySeconds(token);
-        if (remaining > 0) {
-            tokenStore.addToBlocklist(jti, Duration.ofSeconds(remaining));
+        try {
+            String jti = jwtService.extractJti(token);
+            long remaining = jwtService.getRemainingExpirySeconds(token);
+            if (remaining > 0) {
+                tokenStore.addToBlocklist(jti, Duration.ofSeconds(remaining));
+            }
+        } catch (Exception e) {
+            // Token inválido ou malformado — ignora graciosamente
         }
     }
 }

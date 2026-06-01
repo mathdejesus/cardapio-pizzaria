@@ -1,12 +1,10 @@
 package com.pizzaria.config;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.pizzaria.exception.RateLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Duration;
 
@@ -25,13 +23,13 @@ public class RedisLoginRateLimiter implements LoginRateLimiter {
     public void checkBlocked() {
         int count = currentCount();
         if (count >= MAX_ATTEMPTS) {
-            throw new IllegalStateException("Muitas tentativas de login. Aguarde e tente novamente.");
+            throw new RateLimitExceededException();
         }
     }
 
     @Override
     public void registerFailure() {
-        String key = keyFor(getClientIP());
+        String key = keyFor(IpUtils.getClientIP());
         Long count = redis.opsForValue().increment(key);
         if (count != null && count == 1) {
             redis.expire(key, WINDOW);
@@ -40,7 +38,7 @@ public class RedisLoginRateLimiter implements LoginRateLimiter {
 
     @Override
     public void registerSuccess() {
-        redis.delete(keyFor(getClientIP()));
+        redis.delete(keyFor(IpUtils.getClientIP()));
     }
 
     @Override
@@ -49,24 +47,11 @@ public class RedisLoginRateLimiter implements LoginRateLimiter {
     }
 
     private int currentCount() {
-        String countStr = redis.opsForValue().get(keyFor(getClientIP()));
+        String countStr = redis.opsForValue().get(keyFor(IpUtils.getClientIP()));
         return countStr != null ? Integer.parseInt(countStr) : 0;
     }
 
     private String keyFor(String ip) {
         return PREFIX + ip;
-    }
-
-    private String getClientIP() {
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs != null) {
-            HttpServletRequest request = attrs.getRequest();
-            String xfwd = request.getHeader("X-Forwarded-For");
-            if (xfwd != null && !xfwd.isBlank()) {
-                return xfwd.split(",")[0].trim();
-            }
-            return request.getRemoteAddr();
-        }
-        return "unknown";
     }
 }
