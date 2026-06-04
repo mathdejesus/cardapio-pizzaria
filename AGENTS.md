@@ -26,9 +26,11 @@ All Redis/InMemory switching is driven by `app.redis.enabled` via `@ConditionalO
 
 ```bash
 ./mvnw test                                         # all 55
-./mvnw test -Dtest="*ServiceTest"                   # unit only (30)
-./mvnw test -Dtest="*ControllerTest"                # integration only (8)
-./mvnw test -Dtest="*StoreTest,*RateLimiterTest"    # infra unit tests (17)
+./mvnw test -Dtest="*ServiceTest"                   # service unit tests (21)
+./mvnw test -Dtest="*ControllerTest"                # integration tests (8)
+./mvnw test -Dtest="*StoreTest,*RateLimiterTest"    # infra unit tests (16)
+./mvnw test -Dtest="JwtServiceTest"                 # JWT unit tests (10)
+./mvnw test -Dtest="UserServiceTest"                # user service tests (5)
 ./mvnw test -Dtest="PizzaServiceTest#testName"      # single method
 ```
 
@@ -89,6 +91,4 @@ Flyway migration: `V1__init_schema.sql` (only active in `postgres` profile).
 - Refresh tokens are rejected by `JwtAuthenticationFilter` — only access tokens can authenticate API requests
 - `RateLimitExceededException` (not `IllegalStateException`) is thrown for rate limit violations
 
-## Knowledge graph
-
-A graphify knowledge graph is available at `graphify-out/`. For focused architecture questions, run `graphify query "<question>"` instead of grepping raw files.
+Graphify knowledge graph at `graphify-out/` — run `graphify query "<question>"` for architecture questions.
