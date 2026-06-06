@@ -79,4 +79,16 @@ public class PizzaController {
             @Valid @RequestBody DisponibilidadeRequestDTO request) {
         return ResponseEntity.ok(pizzaService.updateDisponibilidade(id, request));
     }
+
+    @GetMapping("/deleted")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<PizzaResponseDTO>> findDeleted() {
+        return ResponseEntity.ok(pizzaService.findDeleted());
+    }
+
+    @PatchMapping("/{id}/restore")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<PizzaResponseDTO> restore(@PathVariable Long id) {
+        return ResponseEntity.ok(pizzaService.restore(id));
+    }
 }

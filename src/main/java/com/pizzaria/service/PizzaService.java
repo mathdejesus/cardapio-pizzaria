@@ -85,6 +85,22 @@ public class PizzaService {
         return pizzaMapper.toResponse(pizza);
     }
 
+    @Transactional(readOnly = true)
+    public List<PizzaResponseDTO> findDeleted() {
+        return pizzaRepository.findDeleted().stream()
+                .map(pizzaMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    @CacheEvict(value = "cardapio", allEntries = true)
+    public PizzaResponseDTO restore(Long id) {
+        Pizza pizza = pizzaRepository.findDeletedById(id)
+                .orElseThrow(() -> new PizzaNotFoundException(id));
+        pizza.setDeleted(false);
+        return pizzaMapper.toResponse(pizza);
+    }
+
     private Pizza findActivePizza(Long id) {
         return pizzaRepository.findById(id)
                 .orElseThrow(() -> new PizzaNotFoundException(id));

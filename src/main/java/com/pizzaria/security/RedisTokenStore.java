@@ -39,4 +39,19 @@ public class RedisTokenStore implements TokenStore {
     public boolean isBlocklisted(String jti) {
         return Boolean.TRUE.equals(redis.hasKey("blocklist:" + jti));
     }
+
+    @Override
+    public void storeAccessTokenMapping(String accessJti, String refreshJti, Duration ttl) {
+        redis.opsForValue().set("access_mapping:" + accessJti, refreshJti, ttl);
+    }
+
+    @Override
+    public Optional<String> getRefreshJtiByAccessJti(String accessJti) {
+        return Optional.ofNullable(redis.opsForValue().get("access_mapping:" + accessJti));
+    }
+
+    @Override
+    public void deleteAccessTokenMapping(String accessJti) {
+        redis.delete("access_mapping:" + accessJti);
+    }
 }

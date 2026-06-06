@@ -15,6 +15,7 @@ public class InMemoryTokenStore implements TokenStore {
 
     private final Map<String, Entry> refreshTokens = new ConcurrentHashMap<>();
     private final Map<String, Instant> blocklist = new ConcurrentHashMap<>();
+    private final Map<String, String> accessToRefresh = new ConcurrentHashMap<>();
 
     @Override
     public void storeRefreshToken(String jti, String email, Duration ttl) {
@@ -56,6 +57,23 @@ public class InMemoryTokenStore implements TokenStore {
         return true;
     }
 
+    @Override
+    public void storeAccessTokenMapping(String accessJti, String refreshJti, Duration ttl) {
+        cleanupExpiredAccessMappings();
+        accessToRefresh.put(accessJti, refreshJti);
+    }
+
+    @Override
+    public Optional<String> getRefreshJtiByAccessJti(String accessJti) {
+        String refreshJti = accessToRefresh.get(accessJti);
+        return Optional.ofNullable(refreshJti);
+    }
+
+    @Override
+    public void deleteAccessTokenMapping(String accessJti) {
+        accessToRefresh.remove(accessJti);
+    }
+
     private record Entry(String email, Instant expiresAt) {
         boolean isExpired() {
             return Instant.now().isAfter(expiresAt);
@@ -68,5 +86,8 @@ public class InMemoryTokenStore implements TokenStore {
 
     private void cleanupExpiredBlocklist() {
         blocklist.entrySet().removeIf(e -> Instant.now().isAfter(e.getValue()));
+    }
+
+    private void cleanupExpiredAccessMappings() {
     }
 }

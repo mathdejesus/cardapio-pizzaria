@@ -44,9 +44,11 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String accessToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(request.getEmail());
-        String jti = jwtService.extractJti(refreshToken);
+        String refreshJti = jwtService.extractJti(refreshToken);
+        String accessJti = jwtService.extractJti(accessToken);
 
-        tokenStore.storeRefreshToken(jti, request.getEmail(), Duration.ofDays(7));
+        tokenStore.storeRefreshToken(refreshJti, request.getEmail(), Duration.ofDays(7));
+        tokenStore.storeAccessTokenMapping(accessJti, refreshJti, Duration.ofDays(7));
 
         return AuthResponseDTO.builder()
                 .accessToken(accessToken)
@@ -80,9 +82,11 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String newAccessToken = jwtService.generateToken(userDetails);
         String newRefreshToken = jwtService.generateRefreshToken(email);
-        String newJti = jwtService.extractJti(newRefreshToken);
+        String newRefreshJti = jwtService.extractJti(newRefreshToken);
+        String newAccessJti = jwtService.extractJti(newAccessToken);
 
-        tokenStore.storeRefreshToken(newJti, email, Duration.ofDays(7));
+        tokenStore.storeRefreshToken(newRefreshJti, email, Duration.ofDays(7));
+        tokenStore.storeAccessTokenMapping(newAccessJti, newRefreshJti, Duration.ofDays(7));
 
         return AuthResponseDTO.builder()
                 .accessToken(newAccessToken)
@@ -94,11 +98,16 @@ public class AuthService {
 
     public void logout(String token) {
         try {
-            String jti = jwtService.extractJti(token);
+            String accessJti = jwtService.extractJti(token);
             long remaining = jwtService.getRemainingExpirySeconds(token);
             if (remaining > 0) {
-                tokenStore.addToBlocklist(jti, Duration.ofSeconds(remaining));
+                tokenStore.addToBlocklist(accessJti, Duration.ofSeconds(remaining));
             }
+
+            tokenStore.getRefreshJtiByAccessJti(accessJti).ifPresent(refreshJti -> {
+                tokenStore.deleteRefreshToken(refreshJti);
+                tokenStore.deleteAccessTokenMapping(accessJti);
+            });
         } catch (Exception e) {
             // Token inválido ou malformado — ignora graciosamente
         }

@@ -14,4 +14,10 @@ public interface TokenStore {
     void addToBlocklist(String jti, Duration ttl);
 
     boolean isBlocklisted(String jti);
+
+    void storeAccessTokenMapping(String accessJti, String refreshJti, Duration ttl);
+
+    Optional<String> getRefreshJtiByAccessJti(String accessJti);
+
+    void deleteAccessTokenMapping(String accessJti);
 }
