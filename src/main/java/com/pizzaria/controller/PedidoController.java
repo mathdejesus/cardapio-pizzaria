@@ -69,7 +69,7 @@ public class PedidoController {
             @Parameter(hidden = true) Pageable pageable) {
         Page<PedidoResponseDTO> page = pedidoService.listarTodosPedidos(pageable);
         PagedModel<EntityModel<PedidoResponseDTO>> model = pagedResourcesAssembler.toModel(page, dto ->
-                EntityModel.of(dto, linkTo(methodOn(PedidoController.class).buscarPedidoAdmin(dto.getId())).withSelfRel()));
+                EntityModel.of(dto, linkTo(methodOn(PedidoController.class).buscarPedidoAdminEndpoint(dto.getId())).withSelfRel()));
         return ResponseEntity.ok(model);
     }
 
@@ -80,7 +80,16 @@ public class PedidoController {
             @Parameter(hidden = true) Pageable pageable) {
         Page<PedidoResponseDTO> page = pedidoService.listarPedidosPorStatus(status, pageable);
         PagedModel<EntityModel<PedidoResponseDTO>> model = pagedResourcesAssembler.toModel(page, dto ->
-                EntityModel.of(dto, linkTo(methodOn(PedidoController.class).buscarPedidoAdmin(dto.getId())).withSelfRel()));
+                EntityModel.of(dto, linkTo(methodOn(PedidoController.class).buscarPedidoAdminEndpoint(dto.getId())).withSelfRel()));
+        return ResponseEntity.ok(model);
+    }
+
+    @GetMapping("/admin/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<EntityModel<PedidoResponseDTO>> buscarPedidoAdminEndpoint(@PathVariable Long id) {
+        PedidoResponseDTO dto = pedidoService.buscarPedidoAdmin(id);
+        EntityModel<PedidoResponseDTO> model = EntityModel.of(dto,
+                linkTo(methodOn(PedidoController.class).buscarPedidoAdminEndpoint(id)).withSelfRel());
         return ResponseEntity.ok(model);
     }
 
@@ -91,9 +100,5 @@ public class PedidoController {
             @RequestParam StatusPedido status) {
         PedidoResponseDTO response = pedidoService.atualizarStatus(id, status);
         return ResponseEntity.ok(response);
-    }
-
-    private EntityModel<PedidoResponseDTO> buscarPedidoAdmin(Long id) {
-        return null; // Placeholder for link generation
     }
 }
