@@ -121,6 +121,13 @@ public class PedidoService {
         return pedidoRepository.findByStatus(status, pageable).map(pedidoMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
+    public PedidoResponseDTO buscarPedidoAdmin(Long id) {
+        Pedido pedido = pedidoRepository.findByIdWithItens(id)
+                .orElseThrow(() -> new PedidoNotFoundException(id));
+        return pedidoMapper.toResponse(pedido);
+    }
+
     @Transactional
     public PedidoResponseDTO atualizarStatus(Long id, StatusPedido novoStatus) {
         Pedido pedido = pedidoRepository.findById(id)
