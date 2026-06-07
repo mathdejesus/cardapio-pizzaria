@@ -2,6 +2,8 @@
 
 Pizzaria menu API with JWT auth, soft delete, Redis cache, rate limiting, HATEOAS.
 
+> **Documentação legacy** (auditoria de issues, relatório de sessão) está em [`docs/legacy/`](docs/legacy/README.md). A fonte canônica do estado atual do projeto é este `AGENTS.md` e o `README.md` principal.
+
 ## Quick start (dev, no infra needed)
 
 ```bash
@@ -22,19 +24,22 @@ Activate: `./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres`
 
 All Redis/InMemory switching is driven by `app.redis.enabled` via `@ConditionalOnProperty`. Property in `application.properties` (default=`false`), overridden in `application-postgres.properties` (`true`).
 
-## Tests (55 total — no infra required)
+## Tests (76 total — no infra required)
 
 ```bash
-./mvnw test                                         # all 55
-./mvnw test -Dtest="*ServiceTest"                   # service unit tests (21)
-./mvnw test -Dtest="*ControllerTest"                # integration tests (8)
+./mvnw test                                         # all 75
+./mvnw test -Dtest="*ServiceTest"                   # service unit tests (33)
+./mvnw test -Dtest="*ControllerTest"                # controller tests (21)
 ./mvnw test -Dtest="*StoreTest,*RateLimiterTest"    # infra unit tests (16)
 ./mvnw test -Dtest="JwtServiceTest"                 # JWT unit tests (10)
-./mvnw test -Dtest="UserServiceTest"                # user service tests (5)
+./mvnw test -Dtest="UserServiceTest"                # user service tests (3)
+./mvnw test -Dtest="PedidoServiceTest"              # pedido service tests (10)
+./mvnw test -Dtest="PedidoControllerTest"           # pedido controller tests (7)
+./mvnw test -Dtest="UploadControllerTest"           # upload controller tests (6)
 ./mvnw test -Dtest="PizzaServiceTest#testName"      # single method
 ```
 
-H2 in-memory, Redis excluded. `TestConfig` mocks 5 beans: `LoginRateLimiter`, `TokenStore`, `CardapioMetrics`, `JwtService`, `UserDetailsService`. Tests use `application-test.properties` (`spring.cache.type=none`).
+H2 in-memory, Redis excluded. `TestConfig` mocks 5 beans: `LoginRateLimiter`, `TokenStore`, `CardapioMetrics`, `JwtService`, `UserDetailsService`. Tests use `application-test.properties` (`spring.cache.type=none`). Controller tests use `@SpringBootTest` + `@AutoConfigureMockMvc` + `@WithMockUser` for role-based auth.
 
 ## Architecture quirks (agent will miss)
 
@@ -43,6 +48,9 @@ H2 in-memory, Redis excluded. `TestConfig` mocks 5 beans: `LoginRateLimiter`, `T
 - **Dirty checking**: `PizzaService.update`/`updateDisponibilidade` do NOT call `save()` — JPA dirty checking flushes managed entities automatically within `@Transactional`.
 - **MapStruct**: `PizzaMapper` generates at compile time via annotation processor. After changing mapper, run `./mvnw clean compile` before tests.
 - **Cache**: `@Cacheable("cardapio")` on `CardapioService.getCardapio()`; all write methods in `PizzaService` do `@CacheEvict(value = "cardapio", allEntries = true)`. Profile `default` uses Caffeine, `postgres` uses Redis.
+- **Pedido ownership**: `PedidoService.buscarPedido(id, email)` valida que o pedido pertence ao email. Use `buscarPedidoAdmin(id)` (sem parâmetro email) para endpoints admin que não precisam validar ownership.
+- **UploadController**: POST requer autenticação; GET é público. Defesa contra path traversal (`..`, `/`, `\\`) é aplicada antes do `Files.probeContentType`.
+- **SecurityConfig matchers order**: matchers mais específicos devem vir ANTES dos genéricos. Exemplo correto: `/api/pedidos/admin/**` com `hasRole("ADMIN")` antes de `/api/pedidos/**` com `authenticated()`. Inversão causa bypass de role.
 - **Dual implementations via ConditionalOnProperty**: `InMemoryTokenStore`/`RedisTokenStore` and `InMemoryLoginRateLimiter`/`RedisLoginRateLimiter` swap based on `app.redis.enabled`. Both pairs implement the same interface (`TokenStore`, `LoginRateLimiter`).
 - **Actuator security**: Separate `SecurityFilterChain` (`@Order(0)`) in `ActuatorSecurityConfig` — permits `health`, `info`, `metrics`, `prometheus`; denies all other actuator endpoints.
 - **JWT_SECRET validated at startup**: `JwtService.validateSecret()` (`@PostConstruct`) throws `IllegalStateException` if secret < 32 chars.
