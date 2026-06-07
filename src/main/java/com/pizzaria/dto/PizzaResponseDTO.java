@@ -21,4 +21,5 @@ public class PizzaResponseDTO {
     private List<TamanhoResponseDTO> tamanhos;
     private List<String> ingredientes;
     private boolean disponivel;
+    private String imagemUrl;
 }

@@ -2,6 +2,7 @@ package com.pizzaria.config;
 
 import com.pizzaria.exception.RateLimitExceededException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -11,10 +12,9 @@ import java.time.Duration;
 @Component
 @ConditionalOnProperty(name = "app.redis.enabled", havingValue = "true")
 @RequiredArgsConstructor
+@Slf4j
 public class RedisLoginRateLimiter implements LoginRateLimiter {
 
-    static final int MAX_ATTEMPTS = 5;
-    static final Duration WINDOW = Duration.ofMinutes(5);
     private static final String PREFIX = "rate_limit:";
 
     private final StringRedisTemplate redis;
@@ -23,13 +23,16 @@ public class RedisLoginRateLimiter implements LoginRateLimiter {
     public void checkBlocked() {
         int count = currentCount();
         if (count >= MAX_ATTEMPTS) {
+            log.warn("Rate limit exceeded for IP: {}", IpUtils.getClientIP());
             throw new RateLimitExceededException();
         }
     }
 
     @Override
     public void registerFailure() {
-        String key = keyFor(IpUtils.getClientIP());
+        String ip = IpUtils.getClientIP();
+        log.debug("Login failure registered for IP: {}", ip);
+        String key = keyFor(ip);
         Long count = redis.opsForValue().increment(key);
         if (count != null && count == 1) {
             redis.expire(key, WINDOW);

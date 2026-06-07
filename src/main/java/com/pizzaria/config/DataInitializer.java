@@ -9,8 +9,10 @@ import com.pizzaria.model.Usuario;
 import com.pizzaria.repository.PizzaRepository;
 import com.pizzaria.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer implements ApplicationRunner {
 
     private final PizzaRepository pizzaRepository;
@@ -38,16 +41,20 @@ public class DataInitializer implements ApplicationRunner {
             return;
         }
         // Dev: admin@pizzaria.com / admin123 | user@pizzaria.com / user123
-        usuarioRepository.save(Usuario.builder()
-                .email("admin@pizzaria.com")
-                .senha(passwordEncoder.encode("admin123"))
-                .role(Role.ADMIN)
-                .build());
-        usuarioRepository.save(Usuario.builder()
-                .email("user@pizzaria.com")
-                .senha(passwordEncoder.encode("user123"))
-                .role(Role.USER)
-                .build());
+        saveUserIfNotExists("admin@pizzaria.com", "admin123", Role.ADMIN);
+        saveUserIfNotExists("user@pizzaria.com", "user123", Role.USER);
+    }
+
+    private void saveUserIfNotExists(String email, String rawPassword, Role role) {
+        try {
+            usuarioRepository.save(Usuario.builder()
+                    .email(email)
+                    .senha(passwordEncoder.encode(rawPassword))
+                    .role(role)
+                    .build());
+        } catch (DataIntegrityViolationException e) {
+            log.info("User {} already exists, skipping seed", email);
+        }
     }
 
     private void seedPizzas() {

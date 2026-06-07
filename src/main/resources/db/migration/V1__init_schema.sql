@@ -1,6 +1,6 @@
 CREATE TABLE pizzas (
     id BIGSERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(1000) NOT NULL,
     categoria VARCHAR(50) NOT NULL,
     disponivel BOOLEAN NOT NULL DEFAULT TRUE,
@@ -29,3 +29,5 @@ CREATE TABLE usuarios (
 CREATE INDEX idx_pizzas_categoria ON pizzas(categoria);
 CREATE INDEX idx_pizzas_disponivel ON pizzas(disponivel);
 CREATE INDEX idx_pizzas_deleted ON pizzas(deleted);
+CREATE INDEX idx_pizzas_deleted_disponivel ON pizzas(deleted, disponivel);
+CREATE INDEX idx_pizzas_deleted_categoria ON pizzas(deleted, categoria);

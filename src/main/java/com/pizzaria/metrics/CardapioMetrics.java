@@ -19,8 +19,8 @@ public class CardapioMetrics {
         this.loginFailures = Counter.builder("cardapio.login.failures")
                 .description("Total de logins com credenciais inválidas")
                 .register(registry);
-        Gauge.builder("cardapio.pizzas.total", pizzaRepository, PizzaRepository::count)
-                .description("Quantidade de pizzas cadastradas (inclui soft-deleted no banco)")
+        Gauge.builder("cardapio.pizzas.active", pizzaRepository, PizzaRepository::countNonDeleted)
+                .description("Quantidade de pizzas ativas (não deletadas)")
                 .register(registry);
     }
 

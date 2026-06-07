@@ -3,6 +3,7 @@ package com.pizzaria.controller;
 import com.pizzaria.dto.AuthResponseDTO;
 import com.pizzaria.dto.LoginRequestDTO;
 import com.pizzaria.dto.RefreshTokenRequestDTO;
+import com.pizzaria.dto.RegisterRequestDTO;
 import com.pizzaria.dto.UserProfileDTO;
 import com.pizzaria.service.AuthService;
 import com.pizzaria.service.UserService;
@@ -30,6 +31,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
+        return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/refresh")

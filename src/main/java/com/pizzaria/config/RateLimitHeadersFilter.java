@@ -22,10 +22,15 @@ public class RateLimitHeadersFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals("/api/auth/login") && "POST".equalsIgnoreCase(request.getMethod())) {
-            response.setHeader("X-RateLimit-Remaining",
-                    String.valueOf(rateLimiter.getRemainingAttempts()));
+        boolean isLoginEndpoint = request.getRequestURI().equals("/api/auth/login")
+                && "POST".equalsIgnoreCase(request.getMethod());
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            if (isLoginEndpoint) {
+                response.setHeader("X-RateLimit-Remaining",
+                        String.valueOf(rateLimiter.getRemainingAttempts()));
+            }
         }
-        filterChain.doFilter(request, response);
     }
 }

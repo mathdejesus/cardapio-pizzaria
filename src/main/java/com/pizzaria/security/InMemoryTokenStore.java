@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ConditionalOnProperty(name = "app.redis.enabled", havingValue = "false", matchIfMissing = true)
 public class InMemoryTokenStore implements TokenStore {
 
+    private static final int MAX_ENTRIES = 10000;
+
     private final Map<String, Entry> refreshTokens = new ConcurrentHashMap<>();
     private final Map<String, Instant> blocklist = new ConcurrentHashMap<>();
     private final Map<String, String> accessToRefresh = new ConcurrentHashMap<>();
@@ -20,6 +22,7 @@ public class InMemoryTokenStore implements TokenStore {
     @Override
     public void storeRefreshToken(String jti, String email, Duration ttl) {
         cleanupExpiredRefreshTokens();
+        enforceMaxSize(refreshTokens);
         refreshTokens.put(jti, new Entry(email, Instant.now().plus(ttl)));
     }
 
@@ -41,6 +44,7 @@ public class InMemoryTokenStore implements TokenStore {
     @Override
     public void addToBlocklist(String jti, Duration ttl) {
         cleanupExpiredBlocklist();
+        enforceMaxSize(blocklist);
         blocklist.put(jti, Instant.now().plus(ttl));
     }
 
@@ -60,6 +64,7 @@ public class InMemoryTokenStore implements TokenStore {
     @Override
     public void storeAccessTokenMapping(String accessJti, String refreshJti, Duration ttl) {
         cleanupExpiredAccessMappings();
+        enforceMaxSize(accessToRefresh);
         accessToRefresh.put(accessJti, refreshJti);
     }
 
@@ -89,5 +94,11 @@ public class InMemoryTokenStore implements TokenStore {
     }
 
     private void cleanupExpiredAccessMappings() {
+    }
+
+    private <K, V> void enforceMaxSize(Map<K, V> map) {
+        if (map.size() >= MAX_ENTRIES) {
+            map.clear();
+        }
     }
 }

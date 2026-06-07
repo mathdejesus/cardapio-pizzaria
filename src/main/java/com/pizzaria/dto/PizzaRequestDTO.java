@@ -37,4 +37,7 @@ public class PizzaRequestDTO {
     @NotEmpty(message = "Informe ao menos um ingrediente")
     @Size(min = 1, max = 50, message = "Deve haver no máximo 50 ingredientes")
     private List<@NotBlank @Size(min = 1, max = 200, message = "Cada ingrediente deve ter no máximo 200 caracteres") String> ingredientes;
+
+    @Size(max = 500, message = "A URL da imagem deve ter no máximo 500 caracteres")
+    private String imagemUrl;
 }

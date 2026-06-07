@@ -1,7 +1,6 @@
 package com.pizzaria.service;
 
 import com.pizzaria.dto.UserProfileDTO;
-import com.pizzaria.enums.Role;
 import com.pizzaria.model.Usuario;
 import com.pizzaria.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +22,5 @@ public class UserService {
                 .email(usuario.getEmail())
                 .role(usuario.getRole())
                 .build();
-    }
-
-    public boolean hasRole(String email, Role role) {
-        return usuarioRepository.findByEmail(email)
-                .map(u -> u.getRole() == role)
-                .orElse(false);
     }
 }

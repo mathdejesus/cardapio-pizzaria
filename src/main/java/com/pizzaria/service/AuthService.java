@@ -3,21 +3,27 @@ package com.pizzaria.service;
 import com.pizzaria.config.LoginRateLimiter;
 import com.pizzaria.dto.AuthResponseDTO;
 import com.pizzaria.dto.LoginRequestDTO;
+import com.pizzaria.dto.RegisterRequestDTO;
 import com.pizzaria.metrics.CardapioMetrics;
+import com.pizzaria.model.Usuario;
+import com.pizzaria.repository.UsuarioRepository;
 import com.pizzaria.security.JwtService;
 import com.pizzaria.security.TokenStore;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -26,6 +32,8 @@ public class AuthService {
     private final LoginRateLimiter loginRateLimiter;
     private final TokenStore tokenStore;
     private final CardapioMetrics metrics;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthResponseDTO login(LoginRequestDTO request) {
         metrics.incrementLoginAttempts();
@@ -35,11 +43,13 @@ public class AuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getSenha()));
         } catch (BadCredentialsException ex) {
+            log.warn("Login failed for email: {}", request.getEmail());
             loginRateLimiter.registerFailure();
             metrics.incrementLoginFailures();
             throw ex;
         }
 
+        log.info("Login successful for email: {}", request.getEmail());
         loginRateLimiter.registerSuccess();
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String accessToken = jwtService.generateToken(userDetails);
@@ -60,6 +70,7 @@ public class AuthService {
 
     public AuthResponseDTO refreshToken(String refreshToken) {
         if (!jwtService.isRefreshToken(refreshToken)) {
+            log.warn("Invalid token type used for refresh");
             throw new IllegalArgumentException("Token invalido");
         }
 
@@ -67,6 +78,7 @@ public class AuthService {
         String email = jwtService.extractUsername(refreshToken);
 
         if (tokenStore.isBlocklisted(jti)) {
+            log.warn("Attempt to use revoked refresh token for email: {}", email);
             throw new IllegalArgumentException("Refresh token revogado");
         }
 
@@ -74,11 +86,13 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("Refresh token invalido ou expirado"));
 
         if (!storedEmail.equals(email)) {
+            log.warn("Refresh token email mismatch: expected {}, got {}", storedEmail, email);
             throw new IllegalArgumentException("Refresh token invalido ou expirado");
         }
 
         tokenStore.deleteRefreshToken(jti);
 
+        log.info("Token refreshed for email: {}", email);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String newAccessToken = jwtService.generateToken(userDetails);
         String newRefreshToken = jwtService.generateRefreshToken(email);
@@ -108,8 +122,40 @@ public class AuthService {
                 tokenStore.deleteRefreshToken(refreshJti);
                 tokenStore.deleteAccessTokenMapping(accessJti);
             });
+            log.info("Logout successful, access token blocklisted, refresh token revoked");
         } catch (Exception e) {
-            // Token inválido ou malformado — ignora graciosamente
+            log.debug("Logout ignored for invalid token: {}", e.getMessage());
         }
+    }
+
+    public AuthResponseDTO register(RegisterRequestDTO request) {
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            log.warn("Registration attempt with existing email: {}", request.getEmail());
+            throw new IllegalArgumentException("E-mail já cadastrado");
+        }
+
+        Usuario usuario = Usuario.builder()
+                .email(request.getEmail())
+                .senha(passwordEncoder.encode(request.getSenha()))
+                .role(com.pizzaria.enums.Role.USER)
+                .build();
+        usuarioRepository.save(usuario);
+
+        log.info("User registered: {}", request.getEmail());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        String accessToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(request.getEmail());
+        String refreshJti = jwtService.extractJti(refreshToken);
+        String accessJti = jwtService.extractJti(accessToken);
+
+        tokenStore.storeRefreshToken(refreshJti, request.getEmail(), Duration.ofDays(7));
+        tokenStore.storeAccessTokenMapping(accessJti, refreshJti, Duration.ofDays(7));
+
+        return AuthResponseDTO.builder()
+                .accessToken(accessToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtService.getExpirationSeconds())
+                .refreshToken(refreshToken)
+                .build();
     }
 }

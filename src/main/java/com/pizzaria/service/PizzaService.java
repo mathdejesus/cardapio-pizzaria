@@ -36,11 +36,14 @@ public class PizzaService {
     }
 
     @Transactional(readOnly = true)
-    public List<PizzaResponseDTO> findByCategoria(String categoria) {
+    public Page<PizzaResponseDTO> findByCategoria(String categoria, Pageable pageable) {
         Categoria cat = parseCategoria(categoria);
-        return pizzaRepository.findByCategoria(cat).stream()
-                .map(pizzaMapper::toResponse)
-                .toList();
+        return pizzaRepository.findByCategoriaAndDisponivelTrue(cat, pageable).map(pizzaMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PizzaResponseDTO> findByIngrediente(String ingrediente, Pageable pageable) {
+        return pizzaRepository.findByIngrediente(ingrediente, pageable).map(pizzaMapper::toResponse);
     }
 
     @Transactional
@@ -51,6 +54,7 @@ public class PizzaService {
         pizza.setDisponivel(true);
         pizza.setDeleted(false);
         pizza.setIngredientes(pizzaMapper.toIngredientesFromDTO(request));
+        pizza.setImagemUrl(request.getImagemUrl());
 
         return pizzaMapper.toResponse(pizzaRepository.save(pizza));
     }
@@ -66,6 +70,7 @@ public class PizzaService {
         pizza.setCategoria(mapped.getCategoria());
         pizza.setTamanhos(mapped.getTamanhos());
         pizza.setIngredientes(pizzaMapper.toIngredientesFromDTO(request));
+        pizza.setImagemUrl(request.getImagemUrl());
 
         return pizzaMapper.toResponse(pizza);
     }

@@ -23,7 +23,7 @@ public class Tamanho {
     @Column(nullable = false)
     private TamanhoTipo tipo;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private BigDecimal preco;
 
     @Column(nullable = false)

@@ -9,7 +9,6 @@ import com.pizzaria.model.Tamanho;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -31,6 +30,6 @@ public interface PizzaMapper {
     }
 
     default List<String> toIngredientesFromDTO(PizzaRequestDTO dto) {
-        return dto.getIngredientes() != null ? new ArrayList<>(dto.getIngredientes()) : new ArrayList<>();
+        return dto.getIngredientes() != null ? List.copyOf(dto.getIngredientes()) : List.of();
     }
 }
