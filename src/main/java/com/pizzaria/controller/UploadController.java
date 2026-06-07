@@ -64,8 +64,14 @@ public class UploadController {
 
     @GetMapping("/imagem/{filename:.+}")
     public ResponseEntity<Resource> serveImagem(@PathVariable String filename) {
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            return ResponseEntity.notFound().build();
+        }
         try {
             Path filePath = uploadDir.resolve(filename).normalize();
+            if (!filePath.startsWith(uploadDir)) {
+                return ResponseEntity.notFound().build();
+            }
             Resource resource = new UrlResource(filePath.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {

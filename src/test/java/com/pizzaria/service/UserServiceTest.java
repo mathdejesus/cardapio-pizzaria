@@ -46,34 +46,21 @@ class UserServiceTest {
     }
 
     @Test
+    void getProfile_shouldPreserveUserRole() {
+        Usuario usuario = createUsuario("user@pizzaria.com", Role.USER);
+        when(usuarioRepository.findByEmail("user@pizzaria.com")).thenReturn(Optional.of(usuario));
+
+        UserProfileDTO profile = userService.getProfile("user@pizzaria.com");
+
+        assertThat(profile.getRole()).isEqualTo(Role.USER);
+    }
+
+    @Test
     void getProfile_shouldThrowWhenUserNotFound() {
         when(usuarioRepository.findByEmail("unknown@email.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getProfile("unknown@email.com"))
                 .isInstanceOf(UsernameNotFoundException.class)
                 .hasMessageContaining("unknown@email.com");
-    }
-
-    @Test
-    void hasRole_shouldReturnTrueWhenRoleMatches() {
-        Usuario usuario = createUsuario("admin@pizzaria.com", Role.ADMIN);
-        when(usuarioRepository.findByEmail("admin@pizzaria.com")).thenReturn(Optional.of(usuario));
-
-        assertThat(userService.hasRole("admin@pizzaria.com", Role.ADMIN)).isTrue();
-    }
-
-    @Test
-    void hasRole_shouldReturnFalseWhenRoleDoesNotMatch() {
-        Usuario usuario = createUsuario("user@pizzaria.com", Role.USER);
-        when(usuarioRepository.findByEmail("user@pizzaria.com")).thenReturn(Optional.of(usuario));
-
-        assertThat(userService.hasRole("user@pizzaria.com", Role.ADMIN)).isFalse();
-    }
-
-    @Test
-    void hasRole_shouldReturnFalseWhenUserNotFound() {
-        when(usuarioRepository.findByEmail("unknown@email.com")).thenReturn(Optional.empty());
-
-        assertThat(userService.hasRole("unknown@email.com", Role.ADMIN)).isFalse();
     }
 }

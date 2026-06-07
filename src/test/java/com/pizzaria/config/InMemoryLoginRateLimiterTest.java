@@ -90,7 +90,7 @@ class InMemoryLoginRateLimiterTest {
     }
 
     @Test
-    void getClientIP_shouldUseXForwardedForWhenPresent() {
+    void getClientIP_shouldIgnoreXForwardedForAndUseRemoteAddr() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1, 192.168.1.1");
         when(request.getRemoteAddr()).thenReturn("192.168.1.1");
@@ -98,9 +98,11 @@ class InMemoryLoginRateLimiterTest {
         RequestContextHolder.setRequestAttributes(attrs);
 
         rateLimiter.registerFailure();
+        rateLimiter.registerFailure();
+        rateLimiter.registerFailure();
+        rateLimiter.registerFailure();
 
-        // Different IP should have separate counter
-        mockClientIP("192.168.1.1");
-        assertThat(rateLimiter.getRemainingAttempts()).isEqualTo(5);
+        // X-Forwarded-For is spoofed; rate limiter must use getRemoteAddr() instead
+        assertThat(rateLimiter.getRemainingAttempts()).isEqualTo(1);
     }
 }

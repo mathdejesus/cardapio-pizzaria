@@ -22,6 +22,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -62,13 +63,16 @@ class PizzaControllerTest {
 
     @Test
     void getPizzaByCategoria_shouldReturnFiltered() {
-        when(pizzaService.findByCategoria("SALGADA")).thenReturn(List.of(
+        PageImpl<PizzaResponseDTO> page = new PageImpl<>(List.of(
                 PizzaResponseDTO.builder().id(1L).nome("Margherita").categoria(Categoria.SALGADA).build()
         ));
 
-        ResponseEntity<List> result = rest.getForEntity("/api/pizzas/categoria/SALGADA", List.class);
+        when(pizzaService.findByCategoria(eq("SALGADA"), any())).thenReturn(page);
+
+        ResponseEntity<String> result = rest.getForEntity("/api/pizzas/categoria/SALGADA?page=0&size=10", String.class);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).contains("Margherita");
     }
 
     @Test

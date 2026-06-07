@@ -112,13 +112,15 @@ class PizzaServiceTest {
     void findByCategoria_shouldReturnFilteredPizzas() {
         Pizza pizza = createPizza(1L);
         PizzaResponseDTO dto = createResponseDTO(1L);
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Pizza> pizzaPage = new PageImpl<>(List.of(pizza));
 
-        when(pizzaRepository.findByCategoria(Categoria.SALGADA)).thenReturn(List.of(pizza));
+        when(pizzaRepository.findByCategoriaAndDisponivelTrue(Categoria.SALGADA, pageable)).thenReturn(pizzaPage);
         when(pizzaMapper.toResponse(pizza)).thenReturn(dto);
 
-        List<PizzaResponseDTO> result = pizzaService.findByCategoria("SALGADA");
+        Page<PizzaResponseDTO> result = pizzaService.findByCategoria("SALGADA", pageable);
 
-        assertThat(result).hasSize(1);
+        assertThat(result.getContent()).hasSize(1);
     }
 
     @Test

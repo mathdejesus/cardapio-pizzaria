@@ -47,10 +47,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/upload/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                        .requestMatchers("/api/pedidos/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/pedidos").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/pedidos").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/**").authenticated()
-                        .requestMatchers("/api/pedidos/admin/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

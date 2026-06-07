@@ -21,5 +21,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("SELECT p FROM Pedido p WHERE p.status = :status ORDER BY p.dataCriacao DESC")
     Page<Pedido> findByStatus(@Param("status") com.pizzaria.enums.StatusPedido status, Pageable pageable);
 
-    Optional<Pedido> findByIdWithItens(Long id);
+    @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.itens WHERE p.id = :id")
+    Optional<Pedido> findByIdWithItens(@Param("id") Long id);
 }

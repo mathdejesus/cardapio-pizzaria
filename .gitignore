@@ -22,3 +22,34 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Maven
+target/
+.m2/
+effective-pom
+effective-pom.xml
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Uploaded images (runtime)
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (not used in this project, but just in case)
+node_modules/
+package-lock.json
+
+# Local workspace artifacts
+Users/
+worktrees/
+pizzas.png
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
