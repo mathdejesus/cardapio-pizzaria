@@ -6,7 +6,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=postgres
-      - JWT_SECRET=${JWT_SECRET:-minha-chave-super-segura-com-pelo-menos-32-caracteres!}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET environment variable must be set (min 32 chars)}
       - DATABASE_URL=jdbc:postgresql://db:5432/pizzaria
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres

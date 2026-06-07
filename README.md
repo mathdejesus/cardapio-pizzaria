@@ -433,7 +433,7 @@ A aplicação iniciará em `http://localhost:8080`.
 Sobe a aplicação com PostgreSQL 16, Redis 7 e Flyway para migrações.
 
 ```bash
-# 1. (Opcional) Defina a JWT_SECRET — se não definir, usa o fallback do docker-compose.yml
+# 1. (Obrigatório) Defina a JWT_SECRET — sem fallback hardcoded por segurança
 export JWT_SECRET="minha-chave-super-segura-com-pelo-menos-32-caracteres!"
 
 # 2. Build e execute os containers
